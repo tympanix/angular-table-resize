@@ -55,10 +55,10 @@ gulp.task('build:js', function() {
 
 gulp.task('build:css', function() {
     return gulp.src(cssFiles)
-    .pipe(gulp.dest(DIST))
-    .pipe(cleancss({ compatibility: 'ie8' }))
-    .pipe(rename({ extname: '.min.css' }))
-    .pipe(gulp.dest(DIST))
+        .pipe(gulp.dest(DIST))
+        .pipe(cleancss({ compatibility: 'ie8' }))
+        .pipe(rename({ extname: '.min.css' }))
+        .pipe(gulp.dest(DIST))
 })
 
 gulp.task('build', ['build:js', 'build:css'])
