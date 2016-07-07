@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html ng-app="ngTableResize">
+    <head>
+        <!-- Standard Meta -->
+        <meta charset="utf-8"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"/>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+        <!-- Site Properties -->
+        <title>ngTableResize Demo</title>
+
+        <!-- build:css css/semantic.css -->
+        <link rel="stylesheet" href="bower_components/semantic/dist/semantic.min.css">
+        <!-- endbuild -->
+
+        <!-- build:css css/index.css -->
+        <link rel="stylesheet" href="css/index.css">
+        <!-- endbuild -->
+
+    </head>
+    <body ng-controller="main-controller">
+
+        <!-- Page Contents -->
+        <div class="content">
+
+            <div class="main wrapper">
+                <div class="wrapper">
+                    <div class="torrent sidebar"></div>
+
+                    <div class="main-panel" ng-show="show">
+                        <div class="action header">
+                            <div class="ui button green" ng-click="addItem()">
+                                Add item
+                            </div>
+                            <div class="ui button red" ng-click="removeItem()">
+                                Remove Item
+                            </div>
+                            <div class="ui button blue" ng-click="tableMode = 'FixedResizer'">
+                                Fixed
+                            </div>
+                            <div class="ui button orange" ng-click="tableMode = 'OverflowResizer'">
+                                Overflow
+                            </div>
+                            <div class="ui button purple" ng-click="tableMode = 'BasicResizer'">
+                                Basic
+                            </div>
+                        </div>
+                        <div class="main-content" ng-include="'./views/table.html'">
+
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- build:js scripts/vendor.js -->
+        <script src="bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="bower_components/semantic/dist/semantic.min.js"></script>
+        <script src="bower_components/angular/angular.js" charset="utf-8"></script>
+
+        <script src="bower_components/col-resizable/colResizable-1.6.min.js" charset="utf-8"></script>
+        <!-- endbuild -->
+
+        <script src="scripts/app.js" charset="utf-8"></script>
+
+        <!-- Directives -->
+        <script src="scripts/directives/resizeable-directive.js" charset="utf-8"></script>
+
+        <!-- Services -->
+        <script src="scripts\services\resize-storage-service.js" charset="utf-8"></script>
+        <script src="scripts\services\resizer-factory.js" charset="utf-8"></script>
+
+        <!-- Resizers -->
+        <script src="scripts\resizers\basic-resizer.js" charset="utf-8"></script>
+        <script src="scripts\resizers\fixed-resizer.js" charset="utf-8"></script>
+        <script src="scripts\resizers\overflow-resizer.js" charset="utf-8"></script>
+
+    </body>
+
+</html>

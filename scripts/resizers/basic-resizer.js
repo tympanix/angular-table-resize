@@ -1,0 +1,74 @@
+angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", function(ResizerModel) {
+
+    function BasicResizer(table, columns, container) {
+        // Call super constructor
+        ResizerModel.call(this, table, columns, container)
+
+        //this.handleColumns = $(this.columns).not(':last');
+
+        this.intervene = {
+            selector: interveneSelector,
+            calculator: interveneCalculator,
+            restrict: interveneRestrict
+        }
+    }
+
+    // Inherit by prototypal inheritance
+    BasicResizer.prototype = Object.create(ResizerModel.prototype);
+
+    function interveneSelector(column) {
+        return $(column).next()
+    }
+
+    function interveneCalculator(orgWidth, diffX) {
+        return orgWidth - diffX;
+    }
+
+    function interveneRestrict(newWidth){
+        return newWidth < 25;
+    }
+
+    BasicResizer.prototype.setup = function() {
+        // Hide overflow in mode fixed
+        $(this.container).css({
+            overflowX: 'hidden'
+        })
+
+        // First column is auto to compensate for 100% table width
+        $(this.columns).first().css({
+            width: 'auto'
+        });
+    };
+
+    BasicResizer.prototype.handles = function() {
+        // Mode fixed does not require handler on last column
+        return $(this.columns).not(':last')
+    };
+
+    BasicResizer.prototype.firstdrag = function() {
+        // Replace all column's width with absolute measurements
+        $(this.columns).each(function(index, column) {
+            $(column).width($(column).width());
+        })
+    };
+
+    BasicResizer.prototype.enddrag = function () {
+        // Calculates the percent width of each column
+        var totWidth = $(this.table).outerWidth();
+
+        var totPercent = 0;
+
+        $(this.columns).each(function(index, column) {
+            var colWidth = $(column).outerWidth();
+            var percentWidth = colWidth / totWidth * 100 + '%';
+            totPercent += (colWidth / totWidth * 100);
+            $(column).css({ width: percentWidth });
+        })
+
+        console.log("Total percent", totPercent);
+    };
+
+    // Return constructor
+    return BasicResizer;
+
+}]);
