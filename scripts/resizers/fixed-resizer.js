@@ -70,7 +70,6 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", functio
 
     FixedResizer.prototype.calculate = function (orgWidth, diffX) {
         // Subtract difference - neightbour grows
-        console.log("Calling fixed calculate");
         return orgWidth - diffX;
     };
 

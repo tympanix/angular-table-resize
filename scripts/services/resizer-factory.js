@@ -42,7 +42,6 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     ResizerModel.prototype.handleMiddleware = function (handle, column) {
         // By default, every handle controls the column it is placed in
-        console.log("Fixed handle middelware");
         return column;
     };
 
