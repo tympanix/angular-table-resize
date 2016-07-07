@@ -31,7 +31,7 @@ npm install angular-table-resize
 ## Use
 On a HTML table tag put the **resizeable** directive
 ```html
-<table resizeable mode="resizeMode">
+<table resizeable mode="resizeMode" id="myTable">
     ...
 </table>
 ```
@@ -40,6 +40,9 @@ In the example above this variable could be
 ```javascript
 $scope.resizeMode = "BasicResizer"
 ```
+
+#### Saving column sizes
+The module automatically saves the current column width to *localStorage*. This however requires that you supply your **\<table\>** with an *id* and all of your table headers **\<th\>** with and *id* as well.
 
 #### Resizing Modes
 The resize mode kan be set to any of theese modes. Chose the one that works best for you.
