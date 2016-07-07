@@ -14,10 +14,11 @@
     "test",
     "tests"
   ],
+  "devDependencies": {
+    "semantic": "^2.2.1"
+  },
   "dependencies": {
-    "semantic": "^2.1.8",
-    "angular-route": "^1.5.6",
-    "angular-resource": "^1.5.6",
-    "angular": "^1.5.6"
+    "angular": "^1.5.7",
+    "jQuery": "^3.0.0"
   }
 }
