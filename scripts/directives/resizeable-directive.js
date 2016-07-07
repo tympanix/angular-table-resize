@@ -142,7 +142,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         // This event starts the dragging
         $(handle).mousedown(function(event) {
             if (isFirstDrag) {
-                resizer.firstdrag(column, handle);
+                resizer.onFirstDrag(column, handle);
                 resizer.onTableReady();
                 isFirstDrag = false;
             }
@@ -219,7 +219,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
             $(window).unbind('mousemove');
             $('body').removeClass('table-resize');
 
-            resizer.enddrag();
+            resizer.onEndDrag();
 
             saveColumnSizes();
         }

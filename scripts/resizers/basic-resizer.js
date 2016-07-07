@@ -46,14 +46,14 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
         return $(this.columns).not(':last')
     };
 
-    BasicResizer.prototype.firstdrag = function() {
+    BasicResizer.prototype.onFirstDrag = function() {
         // Replace all column's width with absolute measurements
         $(this.columns).each(function(index, column) {
             $(column).width($(column).width());
         })
     };
 
-    BasicResizer.prototype.enddrag = function () {
+    BasicResizer.prototype.onEndDrag = function () {
         // Calculates the percent width of each column
         var totWidth = $(this.table).outerWidth();
 

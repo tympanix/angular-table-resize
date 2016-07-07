@@ -33,7 +33,7 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
         return this.handleColumns;
     };
 
-    ResizerModel.prototype.firstdrag = function () {
+    ResizerModel.prototype.onFirstDrag = function () {
         // By default, set all columns to absolute widths
         $(this.ctrlColumns).each(function(index, column) {
             $(column).width($(column).width());
@@ -56,7 +56,7 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
         return orgWidth + diffX;
     };
 
-    ResizerModel.prototype.enddrag = function () {
+    ResizerModel.prototype.onEndDrag = function () {
         // By default, do nothing when dragging a column ends
         return;
     };

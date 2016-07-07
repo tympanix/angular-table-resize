@@ -38,7 +38,7 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", functio
         return $(this.columns).not(':first');
     };
 
-    FixedResizer.prototype.firstdrag = function() {
+    FixedResizer.prototype.onFirstDrag = function() {
         // Replace each column's width with absolute measurements
         $(this.ctrlColumns).each(function(index, column) {
             $(column).width($(column).width());
