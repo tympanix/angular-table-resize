@@ -82,19 +82,13 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         cache = resizeStorage.loadTableSizes(table, scope.mode)
 
         // Decide which columns should have a handler attached
-        if (resizer.handles){
-            handleColumns = resizer.handles(columns);
-        } else {
-            handleColumns = columns;
-        }
+        handleColumns = resizer.handles(columns);
 
         // Decide which columns are controlled and resized
         ctrlColumns = resizer.ctrlColumns;
 
         // Execute setup function for the given resizer mode
-        if (resizer.setup) {
-            resizer.setup();
-        }
+        resizer.setup();
 
         // Set column sizes from cache
         setColumnSizes(cache);
@@ -120,12 +114,10 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
             var id = $(column).attr('id');
             var cacheWidth = cache[id];
             console.log("Set " + id + " to " + cacheWidth);
-            $(column).css({ width: cacheWidth});
+            $(column).css({ width: cacheWidth });
         })
 
-        if (resizer.onTableReady) {
-            resizer.onTableReady();
-        }
+        resizer.onTableReady();
     }
 
     function initHandle(table, column) {
@@ -238,7 +230,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         $(columns).each(function(index, column) {
             var id = $(column).attr('id');
             if (!id) return;
-            cache[id] = $(column).outerWidth();
+            cache[id] = resizer.saveAttr(column);
         })
 
         resizeStorage.saveTableSizes(table, mode, cache);

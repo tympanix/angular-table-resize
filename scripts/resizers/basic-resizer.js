@@ -4,7 +4,8 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
         // Call super constructor
         ResizerModel.call(this, table, columns, container)
 
-        //this.handleColumns = $(this.columns).not(':last');
+        // All columns are controlled in basic mode
+        this.ctrlColumns = this.columns;
 
         this.intervene = {
             selector: interveneSelector,
@@ -66,6 +67,10 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
         })
 
         console.log("Total percent", totPercent);
+    };
+
+    BasicResizer.prototype.saveAttr = function (column) {
+        return $(column)[0].style.width;
     };
 
     // Return constructor

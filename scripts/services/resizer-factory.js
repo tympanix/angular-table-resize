@@ -62,7 +62,7 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
     };
 
     ResizerModel.prototype.saveAttr = function (column) {
-        return $(column).width();
+        return $(column).outerWidth();
     };
 
     return ResizerModel;
