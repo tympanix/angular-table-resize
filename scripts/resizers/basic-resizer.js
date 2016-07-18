@@ -66,7 +66,6 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
             $(column).css({ width: percentWidth });
         })
 
-        console.log("Total percent", totPercent);
     };
 
     BasicResizer.prototype.saveAttr = function (column) {

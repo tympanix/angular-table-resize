@@ -45,8 +45,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
     function watchModeChange(table, attr, scope) {
         scope.$watch(function() {
             return scope.mode;
-        }, function(newMode) {
-            console.log("Update!", newMode);
+        }, function(/*newMode*/) {
             cleanUpAll(table);
             initialiseAll(table, attr, scope);
         });
@@ -58,7 +57,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
     }
 
     function resetTable(table) {
-        $(table).width('100%');
+        $(table).outerWidth('100%');
         $(table).find('th').width('auto');
     }
 
@@ -76,7 +75,6 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         var ResizeModel = getResizer(scope);
         if (!ResizeModel) return;
         resizer = new ResizeModel(table, columns, container);
-        console.log("Resizer", resizer);
 
         // Load column sized from saved storage
         cache = resizeStorage.loadTableSizes(table, scope.mode)
@@ -103,8 +101,6 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
     function setColumnSizes(cache) {
         if (!cache) {
             resetTable(table);
-            console.error("No settings found");
-            console.info("Reset table");
             return;
         }
 
@@ -113,7 +109,6 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         ctrlColumns.each(function(index, column){
             var id = $(column).attr('id');
             var cacheWidth = cache[id];
-            console.log("Set " + id + " to " + cacheWidth);
             $(column).css({ width: cacheWidth });
         })
 
@@ -152,7 +147,6 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
                 optional = resizer.intervene.selector(column);
                 optional.column = optional;
                 optional.orgWidth = $(optional).width();
-                console.log("Optional", optional);
             }
 
             // Prevent text-selection, object dragging ect.
@@ -234,7 +228,6 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         })
 
         resizeStorage.saveTableSizes(table, mode, cache);
-        console.log("New cache", cache);
     }
 
     // Return this directive as a object literal

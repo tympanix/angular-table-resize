@@ -23,11 +23,6 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", functio
         });
     };
 
-    FixedResizer.prototype.onTableReady = function() {
-        // For mode fixed, make table 100% width always
-        $(this.table).width('100%');
-    };
-
     FixedResizer.prototype.handles = function() {
         // Mode fixed does not require handler on last column
         return $(this.columns).not(':last')
@@ -70,7 +65,6 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", functio
 
     FixedResizer.prototype.calculate = function (orgWidth, diffX) {
         // Subtract difference - neightbour grows
-        console.log("Calling fixed calculate");
         return orgWidth - diffX;
     };
 
