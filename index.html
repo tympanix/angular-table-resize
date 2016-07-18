@@ -1,12 +1,99 @@
 <!DOCTYPE html>
-<!DOCTYPE html>
-<html>
+<html ng-app="resizeDemo">
     <head>
         <meta charset="utf-8">
         <title>Angular Table Resize</title>
+
+        <!-- Stylesheet framework -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.2.2/semantic.min.css">
+
+        <!-- Module styles -->
+        <link rel="stylesheet" href="table-resize.css">
+
+        <!-- Custom stylesheet -->
+        <link rel="stylesheet" href="styles.css">
     </head>
-    <body>
-        <h1>Demo</h1>
-        <h2>This is gonna be a demo of angular-table-resize!</h2>
+    <body ng-controller="demoController">
+        <div class="ui container fluid">
+            <div class="ui inverted vertical center aligned hero segment">
+                <div class="ui hero text container">
+                    <h1 class="ui inverted header">
+                        Demo
+                    </h1>
+                    <h2>angular-table-resize</h2>
+                </div>
+            </div>
+
+            <div class="ui container content">
+
+                <div class="ui menu">
+                    <div class="item">
+                        <div class="ui button green" ng-click="addItem()">
+                            Add item
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="ui button red" ng-click="removeItem()">
+                            Remove Item
+                        </div>
+                    </div>
+                    <div class="item">
+                        <h4>Resize Modes: </h4>
+                    </div>
+                    <div class="item">
+                        <div class="ui button blue" ng-class="button('FixedResizer')" ng-click="setMode('FixedResizer')">
+                            Fixed
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="ui button orange" ng-class="button('OverflowResizer')" ng-click="setMode('OverflowResizer')">
+                            Overflow
+                        </div>
+                    </div>
+                    <div class="item">
+                        <div class="ui button purple" ng-class="button('BasicResizer')" ng-click="setMode('BasicResizer')">
+                            Basic
+                        </div>
+                    </div>
+                </div>
+
+                <table resizeable mode="resizeMode" class="ui single line unstackable selectable fixed compact table" id="myTable">
+                    <thead>
+                        <tr>
+                            <th id="colName">Name</th>
+                            <th id="colStatus" class="four wide">
+                                Status</th>
+                            <th id="colNotes" class="four wide">
+                                Notes</th>
+                            <th id="colMore" class="two wide">
+                                More</th>
+                            <th id="colEvenMore" class="one wide">
+                                Even More</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="item in items">
+                            <td>{{item}}</td>
+                            <td>Approved</td>
+                            <td>None</td>
+                            <td>Even more none</td>
+                            <td>Black hole</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+
+        <!-- Dependencies -->
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.7/angular.min.js"></script>
+
+        <!-- Application -->
+        <script src="app.js"></script>
+
+        <!-- Modules -->
+        <script src="angular-table-resize.js"></script>
+
     </body>
 </html>

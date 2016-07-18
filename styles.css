@@ -1,0 +1,12 @@
+.hero.segment {
+    min-height: 225px;
+    margin-bottom: 50px ! important;
+}
+
+.hero.container {
+    margin-top: 50px;
+}
+
+.content {
+    padding-bottom: 50px;
+}
