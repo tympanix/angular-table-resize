@@ -29,6 +29,11 @@ npm install angular-table-resize
 ```
 
 ## Use
+Make sure your app imports the module
+```javascript
+angular.module('myApplication', ['ngTableResize']);
+```
+
 On a HTML table tag put the **resizeable** directive
 ```html
 <table resizeable mode="resizeMode" id="myTable">
