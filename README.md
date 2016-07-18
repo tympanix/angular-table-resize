@@ -1,6 +1,9 @@
 # angular-table-resize
 An AngularJS module for resizing table columns!
 
+## Demo
+You can try out a demo by [clicking here](https://tympanix.github.io/angular-table-resize/). You can also use the demo as an example for implementing the module on your own page. The soruce can be found in the [gh-pages branch](https://github.com/Tympanix/angular-table-resize/tree/gh-pages)
+
 ## Installation
 #### Bower
 ```
