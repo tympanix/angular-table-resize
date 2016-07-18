@@ -59,7 +59,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
     }
 
     function resetTable(table) {
-        $(table).width('100%');
+        $(table).outerWidth('100%');
         $(table).find('th').width('auto');
     }
 
