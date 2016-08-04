@@ -4,7 +4,10 @@
     "Mathias Mortensen"
   ],
   "description": "An AngularJS module for resizing table columns!",
-  "main": "index.html",
+  "main": [
+      "./dist/angular-table-resize.js",
+      "./dist/table-resize.css"
+  ],
   "license": "MIT",
   "private": false,
   "ignore": [

@@ -8,7 +8,6 @@ table.resize th {
 }
 
 table.resize tr th .handle {
-    background-color: red;
     width: 10px;
     height: 100%;
     position: absolute;
