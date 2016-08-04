@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html ng-app="ngTableResize">
+<html ng-app="DemoApp">
     <head>
         <!-- Standard Meta -->
         <meta charset="utf-8"/>
@@ -10,12 +10,12 @@
         <title>ngTableResize Demo</title>
 
         <!-- build:css css/semantic.css -->
-        <link rel="stylesheet" href="bower_components/semantic/dist/semantic.min.css">
+        <link rel="stylesheet" href="../bower_components/semantic/dist/semantic.min.css">
         <!-- endbuild -->
 
         <!-- build:css css/index.css -->
-        <link rel="stylesheet" href="css/table-resize.css" charset="utf-8">
-        <link rel="stylesheet" href="css/index.css">
+        <link rel="stylesheet" href="./index.css" charset="utf-8">
+        <link rel="stylesheet" href="../dist/table-resize.min.css">
         <!-- endbuild -->
 
     </head>
@@ -46,7 +46,7 @@
                                 Basic
                             </div>
                         </div>
-                        <div class="main-content" ng-include="'./views/table.html'">
+                        <div class="main-content" ng-include="'./table.html'">
 
                         </div>
                     </div>
@@ -58,26 +58,15 @@
         </div>
 
         <!-- build:js scripts/vendor.js -->
-        <script src="bower_components/jquery/dist/jquery.min.js"></script>
-        <script src="bower_components/semantic/dist/semantic.min.js"></script>
-        <script src="bower_components/angular/angular.js" charset="utf-8"></script>
-
-        <script src="bower_components/col-resizable/colResizable-1.6.min.js" charset="utf-8"></script>
+        <script src="../bower_components/jquery/dist/jquery.min.js"></script>
+        <script src="../bower_components/semantic/dist/semantic.min.js"></script>
+        <script src="../bower_components/angular/angular.js" charset="utf-8"></script>
         <!-- endbuild -->
 
-        <script src="scripts/app.js" charset="utf-8"></script>
+        <script src="./demo.js" charset="utf-8"></script>
 
         <!-- Directives -->
-        <script src="scripts/directives/resizeable-directive.js" charset="utf-8"></script>
-
-        <!-- Services -->
-        <script src="scripts\services\resize-storage-service.js" charset="utf-8"></script>
-        <script src="scripts\services\resizer-factory.js" charset="utf-8"></script>
-
-        <!-- Resizers -->
-        <script src="scripts\resizers\basic-resizer.js" charset="utf-8"></script>
-        <script src="scripts\resizers\fixed-resizer.js" charset="utf-8"></script>
-        <script src="scripts\resizers\overflow-resizer.js" charset="utf-8"></script>
+        <script src="../dist/angular-table-resize.min.js" charset="utf-8"></script>
 
     </body>
 

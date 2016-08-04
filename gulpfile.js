@@ -27,7 +27,7 @@ gulp.task('serve', function() {
     browsersync.init({
         port: 3001,
         server: {
-            baseDir: "./",
+            baseDir: "./"
         }
     });
 });
@@ -37,7 +37,7 @@ gulp.task('update', function() {
 });
 
 gulp.task('watch', function() {
-    gulp.watch(['index.html', 'css/**', 'scripts/**', 'views/**'], browsersync.reload);
+    gulp.watch(['index.html', 'css/**', 'scripts/**', 'views/**', 'demo/**'], browsersync.reload);
 });
 
 gulp.task('dev', function() {

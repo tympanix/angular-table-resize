@@ -72,7 +72,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         mode = scope.mode;
 
         // Get the resizer object for the current mode
-        var ResizeModel = getResizer(scope);
+        var ResizeModel = getResizer(scope, attr);
         if (!ResizeModel) return;
         resizer = new ResizeModel(table, columns, container);
 
@@ -195,9 +195,10 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         }
     }
 
-    function getResizer(scope) {
+    function getResizer(scope, attr) {
         try {
-            var Resizer = $injector.get(scope.mode)
+            var mode = attr.mode ? scope.mode : 'BasicResizer';
+            var Resizer = $injector.get(mode)
             return Resizer;
         } catch (e) {
             console.error("The resizer "+ scope.mode +" was not found");
