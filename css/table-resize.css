@@ -17,7 +17,7 @@ table.resize tr th .handle {
 }
 
 body.table-resize {
-    cursor: e-resize !important;
+    cursor: ew-resize !important;
 }
 
 table.resize tr th .handle.active {

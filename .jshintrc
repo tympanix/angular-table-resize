@@ -89,6 +89,8 @@
     // Custom Globals
     "globals"       : {
         "angular": false,
-        "$": false
+        "$": false,
+        "expect": false,
+        "inject": false
     }
 }
