@@ -1,1 +1,1 @@
-table.resize th{position:relative;min-width:10px!important}table.resize tr th .handle{width:10px;height:100%;position:absolute;top:0;right:0;cursor:e-resize}body.table-resize{cursor:ew-resize!important}table.resize tr th .handle.active{border-right:1px dotted #000}
+table.resize th{position:relative;min-width:10px!important}table.resize tr th .handle{width:10px;height:100%;position:absolute;top:0;right:0;cursor:ew-resize!important}table.resize tr th .handle.active{border-right:1px dotted #000}

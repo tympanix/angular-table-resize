@@ -13,10 +13,6 @@ table.resize tr th .handle {
     position: absolute;
     top: 0;
     right: 0px;
-    cursor: e-resize;
-}
-
-body.table-resize {
     cursor: ew-resize !important;
 }
 
