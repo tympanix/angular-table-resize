@@ -2,7 +2,7 @@
 An AngularJS module for resizing table columns!
 
 ## Demo
-You can try out a demo by [clicking here](https://tympanix.github.io/angular-table-resize/). You can also use the demo as an example for implementing the module on your own page. The soruce can be found in the [gh-pages branch](https://github.com/Tympanix/angular-table-resize/tree/gh-pages)
+You can try out a demo by [clicking here](https://tympanix.github.io/angular-table-resize/). You can also use the demo as an example for implementing the module on your own page. The source can be found in the [gh-pages branch](https://github.com/Tympanix/angular-table-resize/tree/gh-pages)
 
 ## Installation
 #### Bower
@@ -53,7 +53,7 @@ $scope.resizeMode = "BasicResizer"
 The module automatically saves the current column width to *localStorage*. This however requires that you supply your **\<table\>** with an *id* and all of your table headers **\<th\>** with and *id* as well.
 
 #### Resizing Modes
-The resize mode kan be set to any of theese modes. Chose the one that works best for you.
+The resize mode can be set to any of these modes. Choose the one that works best for you.
 
 | Resize Mode       | Description          |
 | :---------------- |:--------------|
@@ -61,6 +61,6 @@ The resize mode kan be set to any of theese modes. Chose the one that works best
 | FixedResizer      | First columns is width auto. Subsequent column sizes are never changed after resizing                         |
 | OverflowResizer   | Table may expand out of its container, adding scrollbars. Columns are always the same size after resizing     |
 
-N.B. You can implement your own resizer model to use with the module. Instructions comming soon.
+N.B. You can implement your own resizer model to use with the module. Instructions coming soon.
 
 
