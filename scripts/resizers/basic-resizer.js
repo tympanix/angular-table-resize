@@ -18,7 +18,7 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
     BasicResizer.prototype = Object.create(ResizerModel.prototype);
 
     function interveneSelector(column) {
-        return $(column).next()
+        return column.next()
     }
 
     function interveneCalculator(orgWidth, diffX) {
@@ -29,16 +29,17 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
         return newWidth < 25;
     }
 
-    BasicResizer.prototype.setup = function() {
+    BasicResizer.prototype.setup = function(container, columns) {
         // Hide overflow in mode fixed
-        $(this.container).css({
+        this.ctrl.container.css({
             overflowX: 'hidden'
         })
 
         // First column is auto to compensate for 100% table width
-        $(this.columns).first().css({
-            width: 'auto'
-        });
+        this.ctrl.columns[0].setWidth('auto')
+        // $(columns).first().css({
+        //     width: 'auto'
+        // });
     };
 
     BasicResizer.prototype.handles = function() {
@@ -48,22 +49,29 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
 
     BasicResizer.prototype.onFirstDrag = function() {
         // Replace all column's width with absolute measurements
-        $(this.columns).each(function(index, column) {
-            $(column).width($(column).width());
+        this.ctrl.columns.forEach(function(column) {
+            column.setWidth(column.getWidth());
         })
     };
 
     BasicResizer.prototype.onEndDrag = function () {
+        console.log("Drag end!");
         // Calculates the percent width of each column
-        var totWidth = $(this.table).outerWidth();
-
+        console.log("Table", this.ctrl.table);
+        var totWidth = $(this.ctrl.table).outerWidth();
+        console.log("totwidth", totWidth);
         var totPercent = 0;
 
-        $(this.columns).each(function(index, column) {
-            var colWidth = $(column).outerWidth();
+        console.log('Columns', this.ctrl.columns);
+
+        this.ctrl.columns.forEach(function(column) {
+            console.log('Column', $(column.element));
+            var colWidth = $(column.element).outerWidth();
+            console.log("Colwidth", colWidth);
             var percentWidth = colWidth / totWidth * 100 + '%';
             totPercent += (colWidth / totWidth * 100);
-            $(column).css({ width: percentWidth });
+            console.log('Set column width', percentWidth);
+            column.setWidth(percentWidth)
         })
 
     };

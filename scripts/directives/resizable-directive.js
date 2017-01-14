@@ -10,6 +10,19 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
             this.columns.push(column)
         }
 
+        this.finish = function() {
+            console.log("Finish!");
+            console.log("Container", this.container);
+            console.log("Columns", this.getColumns());
+            //this.resizer.setup(this.container, this.getColumns())
+        }
+
+        this.getColumns = function() {
+            return this.columns.map(function(column) {
+                return column.element
+            })
+        }
+
         this.removeColumn = function(column) {
             var index = this.columns.indexOf(column)
             if (index > -1) {
@@ -22,12 +35,22 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         }
 
         this.saveColumnSizes = function() {
+            var self = this
             if (!cache) cache = {};
             this.columns.forEach(function(column) {
-                cache[column.resize] = this.resizer.saveAttr(column);
+                cache[column.resize] = self.resizer.saveAttr(column.element);
             })
 
-            resizeStorage.saveTableSizes(table, mode, cache);
+            resizeStorage.saveTableSizes(this.id, this.mode, cache);
+        }
+
+        this.nextColumn = function(column) {
+            var index = this.columns.indexOf(column)
+            if (index === -1 || index >= this.columns.length) {
+                return undefined
+            } else {
+                return this.columns[index + 1]
+            }
         }
 
     }
@@ -39,10 +62,10 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
 
     function link(scope, element, attr, ctrl) {
         // // Set global reference to table
-        // table = element;
+        ctrl.table = $(element)
         //
-        // // Set global reference to container
-        // container = scope.container ? $(scope.container) : $(table).parent();
+        // Set global reference to container
+        ctrl.container = ctrl.container ? $(ctrl.container) : element.parent();
         //
         // // Add css styling/properties to table
         // $(table).addClass('resize');

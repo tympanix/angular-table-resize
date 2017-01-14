@@ -1,11 +1,9 @@
 angular.module("ngTableResize").factory("ResizerModel", [function() {
 
-    function ResizerModel(table, columns, container){
+    function ResizerModel(rzctrl){
         this.minWidth = 25;
 
-        this.table = table;
-        this.columns = columns;
-        this.container = container;
+        this.ctrl = rzctrl
 
         this.handleColumns = this.handles();
         this.ctrlColumns = this.ctrlColumns();
@@ -13,19 +11,19 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     ResizerModel.prototype.setup = function() {
         // Hide overflow by default
-        $(this.container).css({
+        $(this.ctrl.container).css({
             overflowX: 'hidden'
         })
     }
 
     ResizerModel.prototype.onTableReady = function () {
         // Table is by default 100% width
-        $(this.table).outerWidth('100%');
+        $(this.ctrl.table).outerWidth('100%');
     };
 
     ResizerModel.prototype.handles = function () {
         // By default all columns should be assigned a handle
-        return this.columns;
+        return this.ctrl.columns;
     };
 
     ResizerModel.prototype.ctrlColumns = function () {
@@ -35,12 +33,12 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     ResizerModel.prototype.onFirstDrag = function () {
         // By default, set all columns to absolute widths
-        $(this.ctrlColumns).each(function(index, column) {
-            $(column).width($(column).width());
+        $(this.ctrlColumns).forEach(function(column) {
+            column.setWidth(column.getWidth());
         })
     };
 
-    ResizerModel.prototype.handleMiddleware = function (handle, column) {
+    ResizerModel.prototype.handleMiddleware = function (column, columns) {
         // By default, every handle controls the column it is placed in
         return column;
     };
@@ -61,7 +59,7 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
     };
 
     ResizerModel.prototype.saveAttr = function (column) {
-        return $(column).outerWidth();
+        return $(column.element).outerWidth();
     };
 
     return ResizerModel;

@@ -2,7 +2,7 @@ var devapp = angular.module("DemoApp", ["ngTableResize"]);
 
 devapp.controller('main-controller', ['$scope', '$timeout', function($scope, $timeout) {
 
-    $scope.tableMode = "FixedResizer";
+    $scope.tableMode = "BasicResizer";
 
     var i = 1;
 

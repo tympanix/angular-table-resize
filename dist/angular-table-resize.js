@@ -12,6 +12,19 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
             this.columns.push(column)
         }
 
+        this.finish = function() {
+            console.log("Finish!");
+            console.log("Container", this.container);
+            console.log("Columns", this.getColumns());
+            //this.resizer.setup(this.container, this.getColumns())
+        }
+
+        this.getColumns = function() {
+            return this.columns.map(function(column) {
+                return column.element
+            })
+        }
+
         this.removeColumn = function(column) {
             var index = this.columns.indexOf(column)
             if (index > -1) {
@@ -24,12 +37,22 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         }
 
         this.saveColumnSizes = function() {
+            var self = this
             if (!cache) cache = {};
             this.columns.forEach(function(column) {
-                cache[column.resize] = this.resizer.saveAttr(column);
+                cache[column.resize] = self.resizer.saveAttr(column.element);
             })
 
-            resizeStorage.saveTableSizes(table, mode, cache);
+            resizeStorage.saveTableSizes(this.id, this.mode, cache);
+        }
+
+        this.nextColumn = function(column) {
+            var index = this.columns.indexOf(column)
+            if (index === -1 || index >= this.columns.length) {
+                return undefined
+            } else {
+                return this.columns[index + 1]
+            }
         }
 
     }
@@ -41,10 +64,10 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
 
     function link(scope, element, attr, ctrl) {
         // // Set global reference to table
-        // table = element;
+        ctrl.table = $(element)
         //
-        // // Set global reference to container
-        // container = scope.container ? $(scope.container) : $(table).parent();
+        // Set global reference to container
+        ctrl.container = ctrl.container ? $(ctrl.container) : element.parent();
         //
         // // Add css styling/properties to table
         // $(table).addClass('resize');
@@ -285,9 +308,7 @@ angular.module("ngTableResize").directive('resize', [function() {
         restrict: 'A',
         compile: compile,
         require: '^^resizable',
-        scope: {
-            resize: '=',
-        }
+        scope: true
     };
 
     function compile() {
@@ -298,7 +319,10 @@ angular.module("ngTableResize").directive('resize', [function() {
     }
 
     function prelink(scope, element, attr, ctrl) {
+        scope.resize = scope.$eval(attr.resize)
         scope.isFirstDrag = true
+        scope.element = element
+
         ctrl.addColumn(scope)
 
         scope.$on('$destroy', function() {
@@ -306,7 +330,6 @@ angular.module("ngTableResize").directive('resize', [function() {
         });
 
         scope.$watch('width', function(newVal, oldVal) {
-            console.log("Setting width to", newVal);
             scope.setWidth(newVal)
         })
     }
@@ -319,6 +342,19 @@ angular.module("ngTableResize").directive('resize', [function() {
         scope.setWidth = function(width) {
             element.css({ width: width })
         }
+
+        scope.next = function() {
+            return ctrl.nextColumn(scope)
+        }
+
+        scope.getWidth = function() {
+            return scope.element.width()
+        }
+
+        if (scope.$last) {
+            ctrl.finish()
+        }
+
     }
 
     function initHandle(scope, ctrl, column) {
@@ -329,27 +365,27 @@ angular.module("ngTableResize").directive('resize', [function() {
         column.prepend(scope.handle);
 
         // Use the middleware to decide which columns this handle controls
-        var controlledColumn = ctrl.resizer.handleMiddleware(scope.handle, column)
+        scope.controlledColumn = ctrl.resizer.handleMiddleware(scope, ctrl.collumns)
 
         // Bind mousedown, mousemove & mouseup events
-        bindEventToHandle(scope, ctrl, controlledColumn);
+        bindEventToHandle(scope, ctrl);
     }
 
-    function bindEventToHandle(scope, ctrl, column) {
+    function bindEventToHandle(scope, ctrl) {
 
         // This event starts the dragging
         $(scope.handle).mousedown(function(event) {
             if (scope.isFirstDrag) {
-                ctrl.resizer.onFirstDrag(column, scope.handle);
+                ctrl.resizer.onFirstDrag();
                 ctrl.resizer.onTableReady();
                 scope.isFirstDrag = false;
             }
 
             var optional = {}
             if (ctrl.resizer.intervene) {
-                optional = ctrl.resizer.intervene.selector(column);
+                optional = ctrl.resizer.intervene.selector(scope.controlledColumn);
                 optional.column = optional;
-                optional.orgWidth = $(optional).width();
+                optional.orgWidth = optional.getWidth();
             }
 
             // Prevent text-selection, object dragging ect.
@@ -363,18 +399,18 @@ angular.module("ngTableResize").directive('resize', [function() {
 
             // Get mouse and column origin measurements
             var orgX = event.clientX;
-            var orgWidth = $(column).width();
+            var orgWidth = scope.element.width();
 
             // On every mouse move, calculate the new width
-            $(window).mousemove(calculateWidthEvent(scope, ctrl, column, orgX, orgWidth, optional))
+            $(window).mousemove(calculateWidthEvent(scope, ctrl, orgX, orgWidth, optional))
 
             // Stop dragging as soon as the mouse is released
-            $(window).one('mouseup', unbindEvent(scope.handle))
+            $(window).one('mouseup', unbindEvent(scope, ctrl, scope.handle))
 
         })
     }
 
-    function calculateWidthEvent(scope, ctrl, column, orgX, orgWidth, optional) {
+    function calculateWidthEvent(scope, ctrl, orgX, orgWidth, optional) {
         return function(event) {
             // Get current mouse position
             var newX = event.clientX;
@@ -382,7 +418,6 @@ angular.module("ngTableResize").directive('resize', [function() {
             // Use calculator function to calculate new width
             var diffX = newX - orgX;
             var newWidth = ctrl.resizer.calculate(orgWidth, diffX);
-
             // Use restric function to abort potential restriction
             if (ctrl.resizer.restrict(newWidth)) return;
 
@@ -390,11 +425,11 @@ angular.module("ngTableResize").directive('resize', [function() {
             if (ctrl.resizer.intervene){
                 var optWidth = ctrl.resizer.intervene.calculator(optional.orgWidth, diffX);
                 if (ctrl.resizer.intervene.restrict(optWidth)) return;
-                $(optional).width(optWidth)
+                optional.setWidth(optWidth)
             }
 
             // Set size
-            $(column).width(newWidth);
+            scope.controlledColumn.setWidth(newWidth);
         }
     }
 
@@ -441,12 +476,10 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
 
 angular.module("ngTableResize").factory("ResizerModel", [function() {
 
-    function ResizerModel(table, columns, container){
+    function ResizerModel(rzctrl){
         this.minWidth = 25;
 
-        this.table = table;
-        this.columns = columns;
-        this.container = container;
+        this.ctrl = rzctrl
 
         this.handleColumns = this.handles();
         this.ctrlColumns = this.ctrlColumns();
@@ -454,19 +487,19 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     ResizerModel.prototype.setup = function() {
         // Hide overflow by default
-        $(this.container).css({
+        $(this.ctrl.container).css({
             overflowX: 'hidden'
         })
     }
 
     ResizerModel.prototype.onTableReady = function () {
         // Table is by default 100% width
-        $(this.table).outerWidth('100%');
+        $(this.ctrl.table).outerWidth('100%');
     };
 
     ResizerModel.prototype.handles = function () {
         // By default all columns should be assigned a handle
-        return this.columns;
+        return this.ctrl.columns;
     };
 
     ResizerModel.prototype.ctrlColumns = function () {
@@ -476,12 +509,12 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     ResizerModel.prototype.onFirstDrag = function () {
         // By default, set all columns to absolute widths
-        $(this.ctrlColumns).each(function(index, column) {
-            $(column).width($(column).width());
+        $(this.ctrlColumns).forEach(function(column) {
+            column.setWidth(column.getWidth());
         })
     };
 
-    ResizerModel.prototype.handleMiddleware = function (handle, column) {
+    ResizerModel.prototype.handleMiddleware = function (column, columns) {
         // By default, every handle controls the column it is placed in
         return column;
     };
@@ -502,7 +535,7 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
     };
 
     ResizerModel.prototype.saveAttr = function (column) {
-        return $(column).outerWidth();
+        return $(column.element).outerWidth();
     };
 
     return ResizerModel;
@@ -528,7 +561,7 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
     BasicResizer.prototype = Object.create(ResizerModel.prototype);
 
     function interveneSelector(column) {
-        return $(column).next()
+        return column.next()
     }
 
     function interveneCalculator(orgWidth, diffX) {
@@ -539,16 +572,17 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
         return newWidth < 25;
     }
 
-    BasicResizer.prototype.setup = function() {
+    BasicResizer.prototype.setup = function(container, columns) {
         // Hide overflow in mode fixed
-        $(this.container).css({
+        this.ctrl.container.css({
             overflowX: 'hidden'
         })
 
         // First column is auto to compensate for 100% table width
-        $(this.columns).first().css({
-            width: 'auto'
-        });
+        this.ctrl.columns[0].setWidth('auto')
+        // $(columns).first().css({
+        //     width: 'auto'
+        // });
     };
 
     BasicResizer.prototype.handles = function() {
@@ -558,22 +592,29 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
 
     BasicResizer.prototype.onFirstDrag = function() {
         // Replace all column's width with absolute measurements
-        $(this.columns).each(function(index, column) {
-            $(column).width($(column).width());
+        this.ctrl.columns.forEach(function(column) {
+            column.setWidth(column.getWidth());
         })
     };
 
     BasicResizer.prototype.onEndDrag = function () {
+        console.log("Drag end!");
         // Calculates the percent width of each column
-        var totWidth = $(this.table).outerWidth();
-
+        console.log("Table", this.ctrl.table);
+        var totWidth = $(this.ctrl.table).outerWidth();
+        console.log("totwidth", totWidth);
         var totPercent = 0;
 
-        $(this.columns).each(function(index, column) {
-            var colWidth = $(column).outerWidth();
+        console.log('Columns', this.ctrl.columns);
+
+        this.ctrl.columns.forEach(function(column) {
+            console.log('Column', $(column.element));
+            var colWidth = $(column.element).outerWidth();
+            console.log("Colwidth", colWidth);
             var percentWidth = colWidth / totWidth * 100 + '%';
             totPercent += (colWidth / totWidth * 100);
-            $(column).css({ width: percentWidth });
+            console.log('Set column width', percentWidth);
+            column.setWidth(percentWidth)
         })
 
     };

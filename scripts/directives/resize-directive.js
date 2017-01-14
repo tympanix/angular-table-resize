@@ -6,9 +6,7 @@ angular.module("ngTableResize").directive('resize', [function() {
         restrict: 'A',
         compile: compile,
         require: '^^resizable',
-        scope: {
-            resize: '=',
-        }
+        scope: true
     };
 
     function compile() {
@@ -19,7 +17,10 @@ angular.module("ngTableResize").directive('resize', [function() {
     }
 
     function prelink(scope, element, attr, ctrl) {
+        scope.resize = scope.$eval(attr.resize)
         scope.isFirstDrag = true
+        scope.element = element
+
         ctrl.addColumn(scope)
 
         scope.$on('$destroy', function() {
@@ -27,7 +28,6 @@ angular.module("ngTableResize").directive('resize', [function() {
         });
 
         scope.$watch('width', function(newVal, oldVal) {
-            console.log("Setting width to", newVal);
             scope.setWidth(newVal)
         })
     }
@@ -40,6 +40,19 @@ angular.module("ngTableResize").directive('resize', [function() {
         scope.setWidth = function(width) {
             element.css({ width: width })
         }
+
+        scope.next = function() {
+            return ctrl.nextColumn(scope)
+        }
+
+        scope.getWidth = function() {
+            return scope.element.width()
+        }
+
+        if (scope.$last) {
+            ctrl.finish()
+        }
+
     }
 
     function initHandle(scope, ctrl, column) {
@@ -50,27 +63,27 @@ angular.module("ngTableResize").directive('resize', [function() {
         column.prepend(scope.handle);
 
         // Use the middleware to decide which columns this handle controls
-        var controlledColumn = ctrl.resizer.handleMiddleware(scope.handle, column)
+        scope.controlledColumn = ctrl.resizer.handleMiddleware(scope, ctrl.collumns)
 
         // Bind mousedown, mousemove & mouseup events
-        bindEventToHandle(scope, ctrl, controlledColumn);
+        bindEventToHandle(scope, ctrl);
     }
 
-    function bindEventToHandle(scope, ctrl, column) {
+    function bindEventToHandle(scope, ctrl) {
 
         // This event starts the dragging
         $(scope.handle).mousedown(function(event) {
             if (scope.isFirstDrag) {
-                ctrl.resizer.onFirstDrag(column, scope.handle);
+                ctrl.resizer.onFirstDrag();
                 ctrl.resizer.onTableReady();
                 scope.isFirstDrag = false;
             }
 
             var optional = {}
             if (ctrl.resizer.intervene) {
-                optional = ctrl.resizer.intervene.selector(column);
+                optional = ctrl.resizer.intervene.selector(scope.controlledColumn);
                 optional.column = optional;
-                optional.orgWidth = $(optional).width();
+                optional.orgWidth = optional.getWidth();
             }
 
             // Prevent text-selection, object dragging ect.
@@ -84,18 +97,18 @@ angular.module("ngTableResize").directive('resize', [function() {
 
             // Get mouse and column origin measurements
             var orgX = event.clientX;
-            var orgWidth = $(column).width();
+            var orgWidth = scope.element.width();
 
             // On every mouse move, calculate the new width
-            $(window).mousemove(calculateWidthEvent(scope, ctrl, column, orgX, orgWidth, optional))
+            $(window).mousemove(calculateWidthEvent(scope, ctrl, orgX, orgWidth, optional))
 
             // Stop dragging as soon as the mouse is released
-            $(window).one('mouseup', unbindEvent(scope.handle))
+            $(window).one('mouseup', unbindEvent(scope, ctrl, scope.handle))
 
         })
     }
 
-    function calculateWidthEvent(scope, ctrl, column, orgX, orgWidth, optional) {
+    function calculateWidthEvent(scope, ctrl, orgX, orgWidth, optional) {
         return function(event) {
             // Get current mouse position
             var newX = event.clientX;
@@ -103,7 +116,6 @@ angular.module("ngTableResize").directive('resize', [function() {
             // Use calculator function to calculate new width
             var diffX = newX - orgX;
             var newWidth = ctrl.resizer.calculate(orgWidth, diffX);
-
             // Use restric function to abort potential restriction
             if (ctrl.resizer.restrict(newWidth)) return;
 
@@ -111,11 +123,11 @@ angular.module("ngTableResize").directive('resize', [function() {
             if (ctrl.resizer.intervene){
                 var optWidth = ctrl.resizer.intervene.calculator(optional.orgWidth, diffX);
                 if (ctrl.resizer.intervene.restrict(optWidth)) return;
-                $(optional).width(optWidth)
+                optional.setWidth(optWidth)
             }
 
             // Set size
-            $(column).width(newWidth);
+            scope.controlledColumn.setWidth(newWidth);
         }
     }
 
