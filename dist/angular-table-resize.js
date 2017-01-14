@@ -1,37 +1,62 @@
 angular.module("ngTableResize", []);
 
-angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
+angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
 
-    var mode;
+    function controller() {
+        this.columns = []
+        this.resizer = getResizer(this)
+        console.log("Resizer", this.resizer);
+        var cache = resizeStorage.loadTableSizes(this.id, this.mode)
 
-    var columns = null;
-    var ctrlColumns = null;
-    var handleColumns = null;
-    var table = null;
-    var container = null;
-    var resizer = null;
-    var isFirstDrag = true;
+        this.addColumn = function(column) {
+            this.columns.push(column)
+        }
 
-    var cache = null;
+        this.removeColumn = function(column) {
+            var index = this.columns.indexOf(column)
+            if (index > -1) {
+                this.columns.splice(index, 1);
+            }
+        }
 
-    function link(scope, element, attr) {
-        // Set global reference to table
-        table = element;
+        this.getStoredWidth = function(column) {
+            return cache[column.resize] || 'auto';
+        }
 
-        // Set global reference to container
-        container = scope.container ? $(scope.container) : $(table).parent();
+        this.saveColumnSizes = function() {
+            if (!cache) cache = {};
+            this.columns.forEach(function(column) {
+                cache[column.resize] = this.resizer.saveAttr(column);
+            })
 
-        // Add css styling/properties to table
-        $(table).addClass('resize');
+            resizeStorage.saveTableSizes(table, mode, cache);
+        }
 
-        // Initialise handlers, bindings and modes
-        initialiseAll(table, attr, scope);
+    }
 
-        // Bind utility functions to scope object
-        bindUtilityFunctions(table, attr, scope)
+    function compile(element, attr) {
+        element.addClass('resize')
+        return link
+    }
 
-        // Watch for mode changes and update all
-        watchModeChange(table, attr, scope);
+    function link(scope, element, attr, ctrl) {
+        // // Set global reference to table
+        // table = element;
+        //
+        // // Set global reference to container
+        // container = scope.container ? $(scope.container) : $(table).parent();
+        //
+        // // Add css styling/properties to table
+        // $(table).addClass('resize');
+        //
+        // // Initialise handlers, bindings and modes
+        // initialiseAll(table, attr, scope);
+        //
+        // // Bind utility functions to scope object
+        // bindUtilityFunctions(table, attr, scope)
+        //
+        // // Watch for mode changes and update all
+        // watchModeChange(table, attr, scope);
     }
 
     function bindUtilityFunctions(table, attr, scope) {
@@ -197,11 +222,12 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         }
     }
 
-    function getResizer(scope, attr) {
+    function getResizer(scope) {
         try {
-            var mode = attr.mode ? scope.mode : 'BasicResizer';
+            var mode = scope.mode ? scope.mode : 'BasicResizer';
             var Resizer = $injector.get(mode)
-            return Resizer;
+            if (!Resizer) return;
+            return new Resizer(scope);
         } catch (e) {
             console.error("The resizer "+ scope.mode +" was not found");
             return null;
@@ -233,16 +259,156 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         resizeStorage.saveTableSizes(table, mode, cache);
     }
 
+    // Return this directive as an object literal
+    return {
+        restrict: 'A',
+        priority: 0,
+        compile: compile,
+        controller: controller,
+        controllerAs: 'rzctrl',
+        bindToController: true,
+        scope: {
+            id: '@',
+            mode: '=?',
+            bind: '=?',
+            container: '@?'
+        }
+    };
+
+}]);
+
+angular.module("ngTableResize").directive('resize', [function() {
+
+
     // Return this directive as a object literal
     return {
         restrict: 'A',
-        link: link,
+        compile: compile,
+        require: '^^resizable',
         scope: {
-            mode: '=',
-            bind: '=',
-            container: '@'
+            resize: '=',
         }
     };
+
+    function compile() {
+        return {
+            pre: prelink,
+            post: postlink
+        }
+    }
+
+    function prelink(scope, element, attr, ctrl) {
+        scope.isFirstDrag = true
+        ctrl.addColumn(scope)
+
+        scope.$on('$destroy', function() {
+            ctrl.removeColumn(scope)
+        });
+
+        scope.$watch('width', function(newVal, oldVal) {
+            console.log("Setting width to", newVal);
+            scope.setWidth(newVal)
+        })
+    }
+
+    function postlink(scope, element, attr, ctrl) {
+        initHandle(scope, ctrl, element)
+
+        scope.width = ctrl.getStoredWidth(scope)
+
+        scope.setWidth = function(width) {
+            element.css({ width: width })
+        }
+    }
+
+    function initHandle(scope, ctrl, column) {
+        // Prepend a new handle div to the column
+        scope.handle = $('<div>', {
+            class: 'handle'
+        });
+        column.prepend(scope.handle);
+
+        // Use the middleware to decide which columns this handle controls
+        var controlledColumn = ctrl.resizer.handleMiddleware(scope.handle, column)
+
+        // Bind mousedown, mousemove & mouseup events
+        bindEventToHandle(scope, ctrl, controlledColumn);
+    }
+
+    function bindEventToHandle(scope, ctrl, column) {
+
+        // This event starts the dragging
+        $(scope.handle).mousedown(function(event) {
+            if (scope.isFirstDrag) {
+                ctrl.resizer.onFirstDrag(column, scope.handle);
+                ctrl.resizer.onTableReady();
+                scope.isFirstDrag = false;
+            }
+
+            var optional = {}
+            if (ctrl.resizer.intervene) {
+                optional = ctrl.resizer.intervene.selector(column);
+                optional.column = optional;
+                optional.orgWidth = $(optional).width();
+            }
+
+            // Prevent text-selection, object dragging ect.
+            event.preventDefault();
+
+            // Change css styles for the handle
+            $(scope.handle).addClass('active');
+
+            // Show the resize cursor globally
+            $('body').addClass('table-resize');
+
+            // Get mouse and column origin measurements
+            var orgX = event.clientX;
+            var orgWidth = $(column).width();
+
+            // On every mouse move, calculate the new width
+            $(window).mousemove(calculateWidthEvent(scope, ctrl, column, orgX, orgWidth, optional))
+
+            // Stop dragging as soon as the mouse is released
+            $(window).one('mouseup', unbindEvent(scope.handle))
+
+        })
+    }
+
+    function calculateWidthEvent(scope, ctrl, column, orgX, orgWidth, optional) {
+        return function(event) {
+            // Get current mouse position
+            var newX = event.clientX;
+
+            // Use calculator function to calculate new width
+            var diffX = newX - orgX;
+            var newWidth = ctrl.resizer.calculate(orgWidth, diffX);
+
+            // Use restric function to abort potential restriction
+            if (ctrl.resizer.restrict(newWidth)) return;
+
+            // Extra optional column
+            if (ctrl.resizer.intervene){
+                var optWidth = ctrl.resizer.intervene.calculator(optional.orgWidth, diffX);
+                if (ctrl.resizer.intervene.restrict(optWidth)) return;
+                $(optional).width(optWidth)
+            }
+
+            // Set size
+            $(column).width(newWidth);
+        }
+    }
+
+    function unbindEvent(scope, ctrl, handle) {
+        // Event called at end of drag
+        return function( /*event*/ ) {
+            $(handle).removeClass('active');
+            $(window).unbind('mousemove');
+            $('body').removeClass('table-resize');
+
+            ctrl.resizer.onEndDrag();
+            ctrl.saveColumnSizes();
+        }
+    }
 
 }]);
 
@@ -253,7 +419,7 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
     this.loadTableSizes = function(table, model) {
         var key = getStorageKey(table, model);
         var object = $window.localStorage.getItem(key);
-        return JSON.parse(object);
+        return JSON.parse(object) || {};
     }
 
     this.saveTableSizes = function(table, model, sizes) {
@@ -264,12 +430,11 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
     }
 
     function getStorageKey(table, mode) {
-        var id = table.attr('id');
-        if (!id) {
+        if (!table) {
             console.error("Table has no id", table);
             return undefined;
         }
-        return prefix + '.' + table.attr('id') + '.' + mode;
+        return prefix + '.' + table + '.' + mode;
     }
 
 }]);

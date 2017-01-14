@@ -1,25 +1,13 @@
 <!DOCTYPE html>
-<table resizeable mode="tableMode" class="ui single line unstackable selectable fixed compact torrent table" id="myTable">
+<table resizable mode="tableMode" class="ui single line unstackable selectable fixed compact torrent table" id="myTable">
     <thead>
         <tr>
-            <th id="colName">Name</th>
-            <th id="colStatus" class="four wide">
-                Status</th>
-            <th id="colNotes" class="four wide">
-                Notes</th>
-            <th id="colMore" class="two wide">
-                More</th>
-            <th id="colEvenMore" class="one wide">
-                Even More</th>
+            <th ng-repeat="col in columns" resize="col">{{col}}</th>
         </tr>
     </thead>
     <tbody>
         <tr ng-repeat="item in items">
-            <td>{{item}}</td>
-            <td>Approved</td>
-            <td>None</td>
-            <td>Even more none</td>
-            <td>Black hole</td>
+            <td ng-repeat="col in columns track by $index">Hej</td>
         </tr>
     </tbody>
 </table>

@@ -1,35 +1,60 @@
-angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
+angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
 
-    var mode;
+    function controller() {
+        this.columns = []
+        this.resizer = getResizer(this)
+        console.log("Resizer", this.resizer);
+        var cache = resizeStorage.loadTableSizes(this.id, this.mode)
 
-    var columns = null;
-    var ctrlColumns = null;
-    var handleColumns = null;
-    var table = null;
-    var container = null;
-    var resizer = null;
-    var isFirstDrag = true;
+        this.addColumn = function(column) {
+            this.columns.push(column)
+        }
 
-    var cache = null;
+        this.removeColumn = function(column) {
+            var index = this.columns.indexOf(column)
+            if (index > -1) {
+                this.columns.splice(index, 1);
+            }
+        }
 
-    function link(scope, element, attr) {
-        // Set global reference to table
-        table = element;
+        this.getStoredWidth = function(column) {
+            return cache[column.resize] || 'auto';
+        }
 
-        // Set global reference to container
-        container = scope.container ? $(scope.container) : $(table).parent();
+        this.saveColumnSizes = function() {
+            if (!cache) cache = {};
+            this.columns.forEach(function(column) {
+                cache[column.resize] = this.resizer.saveAttr(column);
+            })
 
-        // Add css styling/properties to table
-        $(table).addClass('resize');
+            resizeStorage.saveTableSizes(table, mode, cache);
+        }
 
-        // Initialise handlers, bindings and modes
-        initialiseAll(table, attr, scope);
+    }
 
-        // Bind utility functions to scope object
-        bindUtilityFunctions(table, attr, scope)
+    function compile(element, attr) {
+        element.addClass('resize')
+        return link
+    }
 
-        // Watch for mode changes and update all
-        watchModeChange(table, attr, scope);
+    function link(scope, element, attr, ctrl) {
+        // // Set global reference to table
+        // table = element;
+        //
+        // // Set global reference to container
+        // container = scope.container ? $(scope.container) : $(table).parent();
+        //
+        // // Add css styling/properties to table
+        // $(table).addClass('resize');
+        //
+        // // Initialise handlers, bindings and modes
+        // initialiseAll(table, attr, scope);
+        //
+        // // Bind utility functions to scope object
+        // bindUtilityFunctions(table, attr, scope)
+        //
+        // // Watch for mode changes and update all
+        // watchModeChange(table, attr, scope);
     }
 
     function bindUtilityFunctions(table, attr, scope) {
@@ -195,11 +220,12 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         }
     }
 
-    function getResizer(scope, attr) {
+    function getResizer(scope) {
         try {
-            var mode = attr.mode ? scope.mode : 'BasicResizer';
+            var mode = scope.mode ? scope.mode : 'BasicResizer';
             var Resizer = $injector.get(mode)
-            return Resizer;
+            if (!Resizer) return;
+            return new Resizer(scope);
         } catch (e) {
             console.error("The resizer "+ scope.mode +" was not found");
             return null;
@@ -231,14 +257,19 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         resizeStorage.saveTableSizes(table, mode, cache);
     }
 
-    // Return this directive as a object literal
+    // Return this directive as an object literal
     return {
         restrict: 'A',
-        link: link,
+        priority: 0,
+        compile: compile,
+        controller: controller,
+        controllerAs: 'rzctrl',
+        bindToController: true,
         scope: {
-            mode: '=',
-            bind: '=',
-            container: '@'
+            id: '@',
+            mode: '=?',
+            bind: '=?',
+            container: '@?'
         }
     };
 

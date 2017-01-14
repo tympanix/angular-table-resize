@@ -1,7 +1,6 @@
 var devapp = angular.module("DemoApp", ["ngTableResize"]);
 
 devapp.controller('main-controller', ['$scope', '$timeout', function($scope, $timeout) {
-    $scope.hello = "Hello world";
 
     $scope.tableMode = "FixedResizer";
 
@@ -10,6 +9,8 @@ devapp.controller('main-controller', ['$scope', '$timeout', function($scope, $ti
     $timeout(function() {
         $scope.show = true;
     }, 200)
+
+    $scope.columns = ['Name', 'Status', 'Notes', 'More', 'Even More']
 
     $scope.items = ["One", "Tow", "Three", "Four"];
 

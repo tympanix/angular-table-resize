@@ -5,7 +5,7 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
     this.loadTableSizes = function(table, model) {
         var key = getStorageKey(table, model);
         var object = $window.localStorage.getItem(key);
-        return JSON.parse(object);
+        return JSON.parse(object) || {};
     }
 
     this.saveTableSizes = function(table, model, sizes) {
@@ -16,12 +16,11 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
     }
 
     function getStorageKey(table, mode) {
-        var id = table.attr('id');
-        if (!id) {
+        if (!table) {
             console.error("Table has no id", table);
             return undefined;
         }
-        return prefix + '.' + table.attr('id') + '.' + mode;
+        return prefix + '.' + table + '.' + mode;
     }
 
 }]);

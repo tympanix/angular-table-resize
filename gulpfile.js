@@ -9,7 +9,8 @@ const cleancss = require('gulp-clean-css');
 
 const jsFiles = [
     "scripts/angular-table-resize.js",
-    "scripts/directives/resizeable-directive.js",
+    "scripts/directives/resizable-directive.js",
+    "scripts/directives/resize-directive.js",
     "scripts/services/resize-storage-service.js",
     "scripts/services/resizer-factory.js",
     "scripts/resizers/basic-resizer.js",
@@ -37,11 +38,11 @@ gulp.task('update', function() {
 });
 
 gulp.task('watch', function() {
-    gulp.watch(['index.html', 'css/**', 'scripts/**', 'views/**', 'demo/**'], browsersync.reload);
+    gulp.watch(['index.html', 'css/**', 'scripts/**', 'views/**', 'demo/**'], ['build']);
 });
 
 gulp.task('dev', function() {
-    runSequence('serve', 'watch');
+    runSequence('build', 'serve', 'watch');
 });
 
 gulp.task('build:js', function() {
@@ -51,6 +52,7 @@ gulp.task('build:js', function() {
         .pipe(uglify())
         .pipe(rename({ extname: '.min.js' }))
         .pipe(gulp.dest(DIST))
+        .pipe(browsersync.reload({ stream:true }))
 })
 
 gulp.task('build:css', function() {
@@ -59,6 +61,7 @@ gulp.task('build:css', function() {
         .pipe(cleancss({ compatibility: 'ie8' }))
         .pipe(rename({ extname: '.min.css' }))
         .pipe(gulp.dest(DIST))
+        .pipe(browsersync.reload({ stream:true }))
 })
 
 gulp.task('build', ['build:js', 'build:css'])
