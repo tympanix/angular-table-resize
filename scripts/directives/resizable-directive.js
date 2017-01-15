@@ -2,6 +2,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
 
     function controller() {
         this.columns = []
+        this.isFirstDrag = true
         this.resizer = getResizer(this)
         console.log("Resizer", this.resizer);
         var cache = resizeStorage.loadTableSizes(this.id, this.mode)

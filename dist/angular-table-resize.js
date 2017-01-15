@@ -4,6 +4,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
 
     function controller() {
         this.columns = []
+        this.isFirstDrag = true
         this.resizer = getResizer(this)
         console.log("Resizer", this.resizer);
         var cache = resizeStorage.loadTableSizes(this.id, this.mode)
@@ -350,7 +351,7 @@ angular.module("ngTableResize").directive('resize', [function() {
         }
 
         scope.getWidth = function() {
-            return scope.element.width()
+            return scope.element.outerWidth()
         }
 
         if (scope.$last) {
@@ -377,17 +378,18 @@ angular.module("ngTableResize").directive('resize', [function() {
 
         // This event starts the dragging
         $(scope.handle).mousedown(function(event) {
-            if (scope.isFirstDrag) {
+            if (ctrl.isFirstDrag) {
+                console.log('First drag');
                 ctrl.resizer.onFirstDrag();
                 ctrl.resizer.onTableReady();
-                scope.isFirstDrag = false;
+                ctrl.isFirstDrag = false;
             }
 
             var optional = {}
             if (ctrl.resizer.intervene) {
                 optional = ctrl.resizer.intervene.selector(scope.controlledColumn);
                 optional.column = optional;
-                optional.orgWidth = optional.getWidth();
+                optional.orgWidth = optional.element.outerWidth();
             }
 
             // Prevent text-selection, object dragging ect.
@@ -401,7 +403,7 @@ angular.module("ngTableResize").directive('resize', [function() {
 
             // Get mouse and column origin measurements
             var orgX = event.clientX;
-            var orgWidth = scope.element.width();
+            var orgWidth = scope.getWidth();
 
             // On every mouse move, calculate the new width
             $(window).mousemove(calculateWidthEvent(scope, ctrl, orgX, orgWidth, optional))
@@ -479,7 +481,7 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
 angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     function ResizerModel(rzctrl){
-        this.minWidth = 25;
+        this.minWidth = 50;
         this.ctrl = rzctrl
     }
 
@@ -567,7 +569,7 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
     }
 
     function interveneRestrict(newWidth){
-        return newWidth < 25;
+        return newWidth < 50;
     }
 
     BasicResizer.prototype.setup = function(container, columns) {
@@ -596,22 +598,14 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
     };
 
     BasicResizer.prototype.onEndDrag = function () {
-        console.log("Drag end!");
         // Calculates the percent width of each column
-        console.log("Table", this.ctrl.table);
         var totWidth = $(this.ctrl.table).outerWidth();
-        console.log("totwidth", totWidth);
         var totPercent = 0;
 
-        console.log('Columns', this.ctrl.columns);
-
         this.ctrl.columns.forEach(function(column) {
-            console.log('Column', $(column.element));
-            var colWidth = $(column.element).outerWidth();
-            console.log("Colwidth", colWidth);
+            var colWidth = column.getWidth();
             var percentWidth = colWidth / totWidth * 100 + '%';
             totPercent += (colWidth / totWidth * 100);
-            console.log('Set column width', percentWidth);
             column.setWidth(percentWidth)
         })
 

@@ -26,7 +26,7 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
     }
 
     function interveneRestrict(newWidth){
-        return newWidth < 25;
+        return newWidth < 50;
     }
 
     BasicResizer.prototype.setup = function(container, columns) {
@@ -55,22 +55,14 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
     };
 
     BasicResizer.prototype.onEndDrag = function () {
-        console.log("Drag end!");
         // Calculates the percent width of each column
-        console.log("Table", this.ctrl.table);
         var totWidth = $(this.ctrl.table).outerWidth();
-        console.log("totwidth", totWidth);
         var totPercent = 0;
 
-        console.log('Columns', this.ctrl.columns);
-
         this.ctrl.columns.forEach(function(column) {
-            console.log('Column', $(column.element));
-            var colWidth = $(column.element).outerWidth();
-            console.log("Colwidth", colWidth);
+            var colWidth = column.getWidth();
             var percentWidth = colWidth / totWidth * 100 + '%';
             totPercent += (colWidth / totWidth * 100);
-            console.log('Set column width', percentWidth);
             column.setWidth(percentWidth)
         })
 

@@ -1,7 +1,7 @@
 angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     function ResizerModel(rzctrl){
-        this.minWidth = 25;
+        this.minWidth = 50;
         this.ctrl = rzctrl
     }
 
