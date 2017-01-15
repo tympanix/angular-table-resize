@@ -33,7 +33,9 @@ angular.module("ngTableResize").directive('resize', [function() {
     }
 
     function postlink(scope, element, attr, ctrl) {
-        initHandle(scope, ctrl, element)
+        if (ctrl.resizer.handles(scope)) {
+            initHandle(scope, ctrl, element)
+        }
 
         scope.width = ctrl.getStoredWidth(scope)
 

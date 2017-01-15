@@ -335,7 +335,9 @@ angular.module("ngTableResize").directive('resize', [function() {
     }
 
     function postlink(scope, element, attr, ctrl) {
-        initHandle(scope, ctrl, element)
+        if (ctrl.resizer.handles(scope)) {
+            initHandle(scope, ctrl, element)
+        }
 
         scope.width = ctrl.getStoredWidth(scope)
 
@@ -478,11 +480,7 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     function ResizerModel(rzctrl){
         this.minWidth = 25;
-
         this.ctrl = rzctrl
-
-        this.handleColumns = this.handles();
-        this.ctrlColumns = this.ctrlColumns();
     }
 
     ResizerModel.prototype.setup = function() {
@@ -585,9 +583,9 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
         // });
     };
 
-    BasicResizer.prototype.handles = function() {
+    BasicResizer.prototype.handles = function(column) {
         // Mode fixed does not require handler on last column
-        return $(this.columns).not(':last')
+        return column.$last !== true
     };
 
     BasicResizer.prototype.onFirstDrag = function() {

@@ -2,11 +2,7 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     function ResizerModel(rzctrl){
         this.minWidth = 25;
-
         this.ctrl = rzctrl
-
-        this.handleColumns = this.handles();
-        this.ctrlColumns = this.ctrlColumns();
     }
 
     ResizerModel.prototype.setup = function() {

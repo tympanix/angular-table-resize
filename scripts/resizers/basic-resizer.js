@@ -42,9 +42,9 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
         // });
     };
 
-    BasicResizer.prototype.handles = function() {
+    BasicResizer.prototype.handles = function(column) {
         // Mode fixed does not require handler on last column
-        return $(this.columns).not(':last')
+        return column.$last !== true
     };
 
     BasicResizer.prototype.onFirstDrag = function() {
