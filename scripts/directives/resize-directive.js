@@ -35,7 +35,7 @@ angular.module("ngTableResize").directive('resize', [function() {
                 initHandle(scope, ctrl, element)
             }
 
-            scope.width = ctrl.getStoredWidth(scope)
+            //scope.setWidth(ctrl.getStoredWidth())
         }
 
         scope.setWidth = function(width) {
@@ -54,20 +54,14 @@ angular.module("ngTableResize").directive('resize', [function() {
             ctrl.removeColumn(scope)
         });
 
-        scope.$watch('width', function(newVal, oldVal) {
-            scope.setWidth(newVal)
-        })
-
         ctrl.addColumn(scope)
     }
 
     function postlink(scope, element, attr, ctrl) {
-        scope.initialise()
-
         if (scope.$last) {
-            ctrl.finish()
+            console.log("RENDER!");
+            ctrl.render()
         }
-
     }
 
     function initHandle(scope, ctrl, column) {
@@ -91,8 +85,9 @@ angular.module("ngTableResize").directive('resize', [function() {
             if (ctrl.isFirstDrag) {
                 console.log('First drag');
                 ctrl.resizer.onFirstDrag();
-                ctrl.resizer.onTableReady();
+                ctrl.resizer.onTableReady()
                 ctrl.isFirstDrag = false;
+                ctrl.virgin = false
             }
 
             var optional = {}

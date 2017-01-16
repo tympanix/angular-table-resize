@@ -19,6 +19,12 @@ devapp.controller('main-controller', ['$scope', '$timeout', function($scope, $ti
         i++;
     }
 
+    var j = 1;
+
+    $scope.addColumn = function() {
+        $scope.columns.push('Col'+(j++))
+    }
+
     $scope.removeItem = function() {
         $scope.items.pop();
     }

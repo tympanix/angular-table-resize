@@ -8,6 +8,9 @@ angular.module("ngTableResize").factory("OverflowResizer", ["ResizerModel", func
     // Inherit by prototypal inheritance
     OverflowResizer.prototype = Object.create(ResizerModel.prototype);
 
+    ResizerModel.prototype.newColumnWidth = function(column) {
+        return 150
+    }
 
     OverflowResizer.prototype.setup = function() {
         console.log("Overflow setup");

@@ -70,7 +70,7 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
     };
 
     BasicResizer.prototype.saveAttr = function (column) {
-        return $(column)[0].style.width;
+        return $(column.element)[0].style.width;
     };
 
     // Return constructor

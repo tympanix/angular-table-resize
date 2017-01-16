@@ -16,6 +16,10 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
         return 'auto'
     }
 
+    ResizerModel.prototype.newColumnWidth = function(column) {
+        return false
+    }
+
     ResizerModel.prototype.onTableReady = function () {
         // Table is by default 100% width
         $(this.ctrl.table).outerWidth('100%');
@@ -60,7 +64,7 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
     };
 
     ResizerModel.prototype.saveAttr = function (column) {
-        return $(column.element).outerWidth();
+        return column.getWidth()
     };
 
     return ResizerModel;
