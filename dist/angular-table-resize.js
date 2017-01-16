@@ -13,11 +13,24 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
             this.columns.push(column)
         }
 
+        this.loadSavedColumns = function() {
+            cache = resizeStorage.loadTableSizes(this.id, this.mode)
+        }
+
+        this.injectResizer = function() {
+            var resizer = getResizer(this)
+            if (resizer !== null) {
+                this.resizer = resizer
+            }
+            this.loadSavedColumns()
+        }
+
         this.finish = function() {
             console.log("Finish!");
             console.log("Container", this.container);
             console.log("Columns", this.getColumns());
-            //this.resizer.setup(this.container, this.getColumns())
+            this.resizer.setup()
+            this.resizer.onTableReady();
         }
 
         this.getColumns = function() {
@@ -34,7 +47,24 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         }
 
         this.getStoredWidth = function(column) {
-            return cache[column.resize] || 'auto';
+            return cache[column.resize] || this.resizer.defaultWidth(column);
+        }
+
+        this.deleteHandles = function() {
+            this.columns.forEach(function(column) {
+                column.deleteHandle()
+            })
+        }
+
+        this.resetAll = function() {
+            this.isFirstDrag = true
+            this.deleteHandles()
+        }
+
+        this.initialiseAll = function() {
+            this.columns.forEach(function(column) {
+                column.initialise()
+            })
         }
 
         this.saveColumnSizes = function() {
@@ -80,7 +110,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         // bindUtilityFunctions(table, attr, scope)
         //
         // // Watch for mode changes and update all
-        // watchModeChange(table, attr, scope);
+        watchModeChange(scope, ctrl);
     }
 
     function bindUtilityFunctions(table, attr, scope) {
@@ -93,18 +123,17 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         }
     }
 
-    function watchModeChange(table, attr, scope) {
+    function watchModeChange(scope, ctrl) {
         scope.$watch(function() {
-            return scope.mode;
-        }, function(/*newMode*/) {
-            cleanUpAll(table);
-            initialiseAll(table, attr, scope);
+            return ctrl.mode;
+        }, function(newMode) {
+            if (newMode) {
+                ctrl.injectResizer();
+                ctrl.resetAll();
+                ctrl.initialiseAll();
+                ctrl.finish();
+            }
         });
-    }
-
-    function cleanUpAll(table) {
-        isFirstDrag = true;
-        deleteHandles(table);
     }
 
     function resetTable(table) {
@@ -251,6 +280,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
             var mode = scope.mode ? scope.mode : 'BasicResizer';
             var Resizer = $injector.get(mode)
             if (!Resizer) return;
+            console.log("Settings resizer to", mode);
             return new Resizer(scope);
         } catch (e) {
             console.error("The resizer "+ scope.mode +" was not found");
@@ -321,26 +351,25 @@ angular.module("ngTableResize").directive('resize', [function() {
 
     function prelink(scope, element, attr, ctrl) {
         scope.resize = scope.$eval(attr.resize)
-        scope.isFirstDrag = true
         scope.element = element
 
-        ctrl.addColumn(scope)
+        scope.deleteHandle = function() {
+            if (scope.handle) {
+                scope.handle.remove()
+            }
+        }
 
-        scope.$on('$destroy', function() {
-            ctrl.removeColumn(scope)
-        });
-
-        scope.$watch('width', function(newVal, oldVal) {
-            scope.setWidth(newVal)
-        })
-    }
-
-    function postlink(scope, element, attr, ctrl) {
-        if (ctrl.resizer.handles(scope)) {
+        scope.addHandle = function() {
             initHandle(scope, ctrl, element)
         }
 
-        scope.width = ctrl.getStoredWidth(scope)
+        scope.initialise = function() {
+            if (ctrl.resizer.handles(scope)) {
+                initHandle(scope, ctrl, element)
+            }
+
+            scope.width = ctrl.getStoredWidth(scope)
+        }
 
         scope.setWidth = function(width) {
             element.css({ width: width })
@@ -353,6 +382,20 @@ angular.module("ngTableResize").directive('resize', [function() {
         scope.getWidth = function() {
             return scope.element.outerWidth()
         }
+
+        scope.$on('$destroy', function() {
+            ctrl.removeColumn(scope)
+        });
+
+        scope.$watch('width', function(newVal, oldVal) {
+            scope.setWidth(newVal)
+        })
+
+        ctrl.addColumn(scope)
+    }
+
+    function postlink(scope, element, attr, ctrl) {
+        scope.initialise()
 
         if (scope.$last) {
             ctrl.finish()
@@ -492,6 +535,10 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
         })
     }
 
+    ResizerModel.prototype.defaultWidth = function(column) {
+        return 'auto'
+    }
+
     ResizerModel.prototype.onTableReady = function () {
         // Table is by default 100% width
         $(this.ctrl.table).outerWidth('100%');
@@ -499,17 +546,18 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     ResizerModel.prototype.handles = function () {
         // By default all columns should be assigned a handle
-        return this.ctrl.columns;
+        return true
     };
 
     ResizerModel.prototype.ctrlColumns = function () {
         // By default all columns assigned a handle are resized
-        return this.handleColumns;
+        return true
     };
 
     ResizerModel.prototype.onFirstDrag = function () {
+        console.log("First drag", this.ctrl.columns);
         // By default, set all columns to absolute widths
-        $(this.ctrlColumns).forEach(function(column) {
+        this.ctrl.columns.forEach(function(column) {
             column.setWidth(column.getWidth());
         })
     };
@@ -573,6 +621,7 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
     }
 
     BasicResizer.prototype.setup = function(container, columns) {
+        console.log("Setting up basic resizer", this.ctrl.columns[0]);
         // Hide overflow in mode fixed
         this.ctrl.container.css({
             overflowX: 'hidden'
@@ -707,15 +756,17 @@ angular.module("ngTableResize").factory("OverflowResizer", ["ResizerModel", func
 
 
     OverflowResizer.prototype.setup = function() {
+        console.log("Overflow setup");
         // Allow overflow in this mode
-        $(this.container).css({
+        $(this.ctrl.container).css({
             overflow: 'auto'
         });
     };
 
     OverflowResizer.prototype.onTableReady = function() {
+        console.log("Overflow table ready");
         // For mode overflow, make table as small as possible
-        $(this.table).width(1);
+        $(this.ctrl.table).width(1);
     };
 
     // Return constructor

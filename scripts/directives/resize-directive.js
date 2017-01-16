@@ -18,26 +18,25 @@ angular.module("ngTableResize").directive('resize', [function() {
 
     function prelink(scope, element, attr, ctrl) {
         scope.resize = scope.$eval(attr.resize)
-        scope.isFirstDrag = true
         scope.element = element
 
-        ctrl.addColumn(scope)
+        scope.deleteHandle = function() {
+            if (scope.handle) {
+                scope.handle.remove()
+            }
+        }
 
-        scope.$on('$destroy', function() {
-            ctrl.removeColumn(scope)
-        });
-
-        scope.$watch('width', function(newVal, oldVal) {
-            scope.setWidth(newVal)
-        })
-    }
-
-    function postlink(scope, element, attr, ctrl) {
-        if (ctrl.resizer.handles(scope)) {
+        scope.addHandle = function() {
             initHandle(scope, ctrl, element)
         }
 
-        scope.width = ctrl.getStoredWidth(scope)
+        scope.initialise = function() {
+            if (ctrl.resizer.handles(scope)) {
+                initHandle(scope, ctrl, element)
+            }
+
+            scope.width = ctrl.getStoredWidth(scope)
+        }
 
         scope.setWidth = function(width) {
             element.css({ width: width })
@@ -50,6 +49,20 @@ angular.module("ngTableResize").directive('resize', [function() {
         scope.getWidth = function() {
             return scope.element.outerWidth()
         }
+
+        scope.$on('$destroy', function() {
+            ctrl.removeColumn(scope)
+        });
+
+        scope.$watch('width', function(newVal, oldVal) {
+            scope.setWidth(newVal)
+        })
+
+        ctrl.addColumn(scope)
+    }
+
+    function postlink(scope, element, attr, ctrl) {
+        scope.initialise()
 
         if (scope.$last) {
             ctrl.finish()

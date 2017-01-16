@@ -12,6 +12,10 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
         })
     }
 
+    ResizerModel.prototype.defaultWidth = function(column) {
+        return 'auto'
+    }
+
     ResizerModel.prototype.onTableReady = function () {
         // Table is by default 100% width
         $(this.ctrl.table).outerWidth('100%');
@@ -19,17 +23,18 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     ResizerModel.prototype.handles = function () {
         // By default all columns should be assigned a handle
-        return this.ctrl.columns;
+        return true
     };
 
     ResizerModel.prototype.ctrlColumns = function () {
         // By default all columns assigned a handle are resized
-        return this.handleColumns;
+        return true
     };
 
     ResizerModel.prototype.onFirstDrag = function () {
+        console.log("First drag", this.ctrl.columns);
         // By default, set all columns to absolute widths
-        $(this.ctrlColumns).forEach(function(column) {
+        this.ctrl.columns.forEach(function(column) {
             column.setWidth(column.getWidth());
         })
     };
