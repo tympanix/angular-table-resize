@@ -5,6 +5,8 @@ angular.module("ngTableResize").factory("OverflowResizer", ["ResizerModel", func
         ResizerModel.call(this, table, columns, container)
     }
 
+    ResizerModel.prototype.strictSaving = false
+
     // Inherit by prototypal inheritance
     OverflowResizer.prototype = Object.create(ResizerModel.prototype);
 

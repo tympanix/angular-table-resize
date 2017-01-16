@@ -5,6 +5,8 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
         this.ctrl = rzctrl
     }
 
+    ResizerModel.prototype.strictSaving = true
+
     ResizerModel.prototype.setup = function() {
         // Hide overflow by default
         $(this.ctrl.container).css({

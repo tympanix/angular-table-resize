@@ -30,15 +30,24 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         }
 
         this.initialiseColumns = function() {
-            var self = this
-            var restore = this.columns.every(function(column) {
-                return self.getStoredWidth(column) || self.resizer.newColumnWidth(column);
-            })
-            if (restore) {
+            if (this.canRestoreColumns()) {
                 this.initSavedColumns()
             } else {
                 this.initDefaultColumns()
             }
+        }
+
+        this.canRestoreColumns = function() {
+            var self = this
+            var strict = true
+            if (this.resizer.strictSaving === true) {
+                strict = Object.keys(cache).length === self.columns.length
+            }
+            var restore = this.columns.every(function(column) {
+                return self.getStoredWidth(column) || self.resizer.newColumnWidth(column);
+            })
+            console.log("Strict and restore", strict, restore);
+            return strict && restore
         }
 
         this.render = function() {
@@ -62,6 +71,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
 
         this.initDefaultColumns = function() {
             var self = this
+            cache = {}
             this.columns.forEach(function(column) {
                 column.setWidth(self.resizer.defaultWidth(column))
             })
@@ -79,6 +89,9 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
             if (index > -1) {
                 this.columns.splice(index, 1);
             }
+            this.resetAll();
+            this.initialiseAll();
+            this.initialiseColumns();
         }
 
         this.deleteHandles = function() {
@@ -555,6 +568,8 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
         this.ctrl = rzctrl
     }
 
+    ResizerModel.prototype.strictSaving = true
+
     ResizerModel.prototype.setup = function() {
         // Hide overflow by default
         $(this.ctrl.container).css({
@@ -781,6 +796,8 @@ angular.module("ngTableResize").factory("OverflowResizer", ["ResizerModel", func
         // Call super constructor
         ResizerModel.call(this, table, columns, container)
     }
+
+    ResizerModel.prototype.strictSaving = false
 
     // Inherit by prototypal inheritance
     OverflowResizer.prototype = Object.create(ResizerModel.prototype);
