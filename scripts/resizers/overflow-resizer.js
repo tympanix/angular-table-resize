@@ -3,14 +3,13 @@ angular.module("ngTableResize").factory("OverflowResizer", ["ResizerModel", func
     function OverflowResizer(table, columns, container) {
         // Call super constructor
         ResizerModel.call(this, table, columns, container)
+        this.strictSaving = false
     }
-
-    ResizerModel.prototype.strictSaving = false
 
     // Inherit by prototypal inheritance
     OverflowResizer.prototype = Object.create(ResizerModel.prototype);
 
-    ResizerModel.prototype.newColumnWidth = function(column) {
+    OverflowResizer.prototype.newColumnWidth = function(column) {
         return 150
     }
 
@@ -21,6 +20,10 @@ angular.module("ngTableResize").factory("OverflowResizer", ["ResizerModel", func
             overflow: 'auto'
         });
     };
+
+    OverflowResizer.prototype.tearDown = function() {
+        $(this.ctrl.table).width('');
+    }
 
     OverflowResizer.prototype.onTableReady = function() {
         console.log("Overflow table ready");

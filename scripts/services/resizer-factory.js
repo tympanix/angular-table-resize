@@ -1,17 +1,20 @@
 angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     function ResizerModel(rzctrl){
+        this.strictSaving = true
         this.minWidth = 50;
         this.ctrl = rzctrl
     }
-
-    ResizerModel.prototype.strictSaving = true
 
     ResizerModel.prototype.setup = function() {
         // Hide overflow by default
         $(this.ctrl.container).css({
             overflowX: 'hidden'
         })
+    }
+
+    ResizerModel.prototype.tearDown = function() {
+        return
     }
 
     ResizerModel.prototype.defaultWidth = function(column) {

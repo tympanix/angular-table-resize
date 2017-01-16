@@ -2,6 +2,8 @@ var devapp = angular.module("DemoApp", ["ngTableResize"]);
 
 devapp.controller('main-controller', ['$scope', '$timeout', function($scope, $timeout) {
 
+    $scope.profile = "profile1"
+
     $scope.tableMode = "BasicResizer";
 
     var i = 1;

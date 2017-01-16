@@ -7,17 +7,21 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         this.isFirstDrag = true
         this.resizer = getResizer(this)
         console.log("Resizer", this.resizer);
-        var cache = resizeStorage.loadTableSizes(this.id, this.mode)
+        var cache = resizeStorage.loadTableSizes(this.id, this.mode, this.profile)
 
         this.addColumn = function(column) {
             this.columns.push(column)
         }
 
         this.loadSavedColumns = function() {
-            cache = resizeStorage.loadTableSizes(this.id, this.mode)
+            cache = resizeStorage.loadTableSizes(this.id, this.mode, this.profile)
         }
 
         this.injectResizer = function() {
+            if (this.resizer) {
+                console.log("Tear down", this.resizer);
+                this.resizer.tearDown();
+            }
             var resizer = getResizer(this)
             if (resizer !== null) {
                 this.resizer = resizer
@@ -40,7 +44,10 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         this.canRestoreColumns = function() {
             var self = this
             var strict = true
+            console.log("STRICT SAVING", this.resizer.strictSaving, this.resizer);
             if (this.resizer.strictSaving === true) {
+                console.log("Saved keys", Object.keys(cache).length);
+                console.log("Columns", self.columns.length);
                 strict = Object.keys(cache).length === self.columns.length
             }
             var restore = this.columns.every(function(column) {
@@ -51,9 +58,6 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         }
 
         this.render = function() {
-            console.log("Finish!");
-            console.log("Container", this.container);
-            console.log("Columns", this.getColumns());
             this.resetAll();
             this.initialiseAll();
             this.resizer.setup()
@@ -119,7 +123,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
                 cache[column.resize] = self.resizer.saveAttr(column);
             })
 
-            resizeStorage.saveTableSizes(this.id, this.mode, cache);
+            resizeStorage.saveTableSizes(this.id, this.mode, this.profile, cache);
         }
 
         this.nextColumn = function(column) {
@@ -174,11 +178,18 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         }, function(newMode) {
             if (newMode) {
                 ctrl.injectResizer();
-                ctrl.resetAll();
-                ctrl.initialiseAll();
                 ctrl.render();
             }
         });
+
+        scope.$watch(function() {
+            return ctrl.profile;
+        }, function(newProfile) {
+            if (newProfile) {
+                ctrl.loadSavedColumns()
+                ctrl.initialiseColumns()
+            }
+        })
     }
 
     function resetTable(table) {
@@ -369,6 +380,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         scope: {
             id: '@',
             mode: '=?',
+            profile: '=?',
             bind: '=?',
             container: '@?'
         }
@@ -538,25 +550,29 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
 
     var prefix = "ngColumnResize";
 
-    this.loadTableSizes = function(table, model) {
-        var key = getStorageKey(table, model);
+    this.loadTableSizes = function(table, model, profile) {
+        var key = getStorageKey(table, model, profile);
         var object = $window.localStorage.getItem(key);
         return JSON.parse(object) || {};
     }
 
-    this.saveTableSizes = function(table, model, sizes) {
-        var key = getStorageKey(table, model);
+    this.saveTableSizes = function(table, model, profile, sizes) {
+        var key = getStorageKey(table, model, profile);
         if (!key) return;
         var string = JSON.stringify(sizes);
         $window.localStorage.setItem(key, string)
     }
 
-    function getStorageKey(table, mode) {
+    function getStorageKey(table, mode, profile) {
+        var key = []
         if (!table) {
             console.error("Table has no id", table);
             return undefined;
         }
-        return prefix + '.' + table + '.' + mode;
+        key.push(prefix)
+        key.push(table)
+        if (profile) key.push(profile)
+        return key.join('.')
     }
 
 }]);
@@ -564,17 +580,20 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
 angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     function ResizerModel(rzctrl){
+        this.strictSaving = true
         this.minWidth = 50;
         this.ctrl = rzctrl
     }
-
-    ResizerModel.prototype.strictSaving = true
 
     ResizerModel.prototype.setup = function() {
         // Hide overflow by default
         $(this.ctrl.container).css({
             overflowX: 'hidden'
         })
+    }
+
+    ResizerModel.prototype.tearDown = function() {
+        return
     }
 
     ResizerModel.prototype.defaultWidth = function(column) {
@@ -795,14 +814,13 @@ angular.module("ngTableResize").factory("OverflowResizer", ["ResizerModel", func
     function OverflowResizer(table, columns, container) {
         // Call super constructor
         ResizerModel.call(this, table, columns, container)
+        this.strictSaving = false
     }
-
-    ResizerModel.prototype.strictSaving = false
 
     // Inherit by prototypal inheritance
     OverflowResizer.prototype = Object.create(ResizerModel.prototype);
 
-    ResizerModel.prototype.newColumnWidth = function(column) {
+    OverflowResizer.prototype.newColumnWidth = function(column) {
         return 150
     }
 
@@ -813,6 +831,10 @@ angular.module("ngTableResize").factory("OverflowResizer", ["ResizerModel", func
             overflow: 'auto'
         });
     };
+
+    OverflowResizer.prototype.tearDown = function() {
+        $(this.ctrl.table).width('');
+    }
 
     OverflowResizer.prototype.onTableReady = function() {
         console.log("Overflow table ready");
