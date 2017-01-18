@@ -44,10 +44,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         this.canRestoreColumns = function() {
             var self = this
             var strict = true
-            console.log("STRICT SAVING", this.resizer.strictSaving, this.resizer);
             if (this.resizer.strictSaving === true) {
-                console.log("Saved keys", Object.keys(cache).length);
-                console.log("Columns", self.columns.length);
                 strict = Object.keys(cache).length === self.columns.length
             }
             var restore = this.columns.every(function(column) {
@@ -396,7 +393,7 @@ angular.module("ngTableResize").directive('resize', [function() {
         restrict: 'A',
         compile: compile,
         require: '^^resizable',
-        scope: true
+        scope: false
     };
 
     function compile() {
@@ -571,6 +568,7 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
         }
         key.push(prefix)
         key.push(table)
+        key.push(mode)
         if (profile) key.push(profile)
         return key.join('.')
     }

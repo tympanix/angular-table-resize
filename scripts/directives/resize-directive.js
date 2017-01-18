@@ -6,7 +6,7 @@ angular.module("ngTableResize").directive('resize', [function() {
         restrict: 'A',
         compile: compile,
         require: '^^resizable',
-        scope: true
+        scope: false
     };
 
     function compile() {

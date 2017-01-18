@@ -23,6 +23,7 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
         }
         key.push(prefix)
         key.push(table)
+        key.push(mode)
         if (profile) key.push(profile)
         return key.join('.')
     }

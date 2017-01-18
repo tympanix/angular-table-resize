@@ -42,10 +42,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         this.canRestoreColumns = function() {
             var self = this
             var strict = true
-            console.log("STRICT SAVING", this.resizer.strictSaving, this.resizer);
             if (this.resizer.strictSaving === true) {
-                console.log("Saved keys", Object.keys(cache).length);
-                console.log("Columns", self.columns.length);
                 strict = Object.keys(cache).length === self.columns.length
             }
             var restore = this.columns.every(function(column) {
