@@ -17,6 +17,7 @@ angular.module("ngTableResize").directive('resize', [function() {
     }
 
     function prelink(scope, element, attr, ctrl) {
+        console.log("Linking column", scope.$index);
         scope.resize = scope.$eval(attr.resize)
         scope.element = element
 

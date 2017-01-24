@@ -21,10 +21,25 @@ devapp.controller('main-controller', ['$scope', '$timeout', function($scope, $ti
         i++;
     }
 
+    function getRandomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min)) + min;
+    }
+
+    $scope.shuffleColumns = function() {
+        console.log('Shuffle');
+        $scope.columns = $scope.columns.sort(function() {
+            var r = getRandomInt(-1,1)
+            console.log(r);
+            return r
+        })
+    }
+
     var j = 1;
 
     $scope.addColumn = function() {
-        $scope.columns.push('Col'+(j++))
+        $scope.columns.unshift('Col'+(j++))
     }
 
     $scope.removeColumn = function() {

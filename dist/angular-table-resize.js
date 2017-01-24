@@ -10,7 +10,11 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         var cache = resizeStorage.loadTableSizes(this.id, this.mode, this.profile)
 
         this.addColumn = function(column) {
-            this.columns.push(column)
+            if (Number.isInteger(column.$index)){
+                this.columns.splice(column.$index, 0, column);
+            } else {
+                this.columns.push(column)
+            }
         }
 
         this.loadSavedColumns = function() {
@@ -186,6 +190,13 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
                 ctrl.loadSavedColumns()
                 ctrl.initialiseColumns()
             }
+        })
+
+        scope.$watchCollection(function(){
+            return ctrl.columnsCollection
+        }, function(){
+            console.info("Columns changed");
+            ctrl.render()
         })
     }
 
@@ -378,6 +389,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
             id: '@',
             mode: '=?',
             profile: '=?',
+            columnsCollection: '=?columns',
             bind: '=?',
             container: '@?'
         }
@@ -404,6 +416,7 @@ angular.module("ngTableResize").directive('resize', [function() {
     }
 
     function prelink(scope, element, attr, ctrl) {
+        console.log("Linking column", scope.$index);
         scope.resize = scope.$eval(attr.resize)
         scope.element = element
 
