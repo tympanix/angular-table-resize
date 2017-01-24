@@ -190,12 +190,12 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
             }
         })
 
-        scope.$watchCollection(function(){
+        scope.$watch(function(){
             return ctrl.columnsCollection
         }, function(){
             console.info("Columns changed");
             ctrl.render()
-        })
+        }, true)
     }
 
     function resetTable(table) {
