@@ -148,7 +148,9 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         ctrl.table = $(element)
         //
         // Set global reference to container
-        ctrl.container = ctrl.container ? $(ctrl.container) : element.parent();
+        console.log("Container", attr.container);
+
+        ctrl.container = attr.container ? $(attr.container) : element.parent();
         //
         // // Add css styling/properties to table
         // $(table).addClass('resize');
@@ -390,8 +392,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
             mode: '=?',
             profile: '=?',
             columnsCollection: '=?columns',
-            bind: '=?',
-            container: '@?'
+            bind: '=?'
         }
     };
 
@@ -697,7 +698,7 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
     }
 
     BasicResizer.prototype.setup = function(container, columns) {
-        console.log("Setting up basic resizer", this.ctrl.columns[0]);
+        console.log("Basic resizer container", this.ctrl.container);
         // Hide overflow in mode fixed
         this.ctrl.container.css({
             overflowX: 'hidden'

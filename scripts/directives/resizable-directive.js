@@ -146,7 +146,9 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         ctrl.table = $(element)
         //
         // Set global reference to container
-        ctrl.container = ctrl.container ? $(ctrl.container) : element.parent();
+        console.log("Container", attr.container);
+
+        ctrl.container = attr.container ? $(attr.container) : element.parent();
         //
         // // Add css styling/properties to table
         // $(table).addClass('resize');
@@ -388,8 +390,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
             mode: '=?',
             profile: '=?',
             columnsCollection: '=?columns',
-            bind: '=?',
-            container: '@?'
+            bind: '=?'
         }
     };
 

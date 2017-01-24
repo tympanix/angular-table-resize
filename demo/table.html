@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<table resizable columns="columns" profile="profile" mode="tableMode" class="ui single line unstackable selectable fixed compact torrent table" id="myTable">
+<div id="myContainer">
+<table resizable container="#myContainer" columns="columns" profile="profile" mode="tableMode" class="ui single line unstackable selectable fixed compact torrent table" id="myTable">
     <thead>
         <tr>
             <th ng-repeat="col in columns" resize="col">{{col}}</th>
@@ -11,3 +12,4 @@
         </tr>
     </tbody>
 </table>
+</div>
