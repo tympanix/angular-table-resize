@@ -30,7 +30,6 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
     }
 
     BasicResizer.prototype.setup = function(container, columns) {
-        console.log("Basic resizer container", this.ctrl.container);
         // Hide overflow in mode fixed
         this.ctrl.container.css({
             overflowX: 'hidden'

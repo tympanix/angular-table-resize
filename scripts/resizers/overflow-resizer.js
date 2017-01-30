@@ -14,7 +14,6 @@ angular.module("ngTableResize").factory("OverflowResizer", ["ResizerModel", func
     }
 
     OverflowResizer.prototype.setup = function() {
-        console.log("Overflow setup");
         // Allow overflow in this mode
         $(this.ctrl.container).css({
             overflow: 'auto'
@@ -26,7 +25,6 @@ angular.module("ngTableResize").factory("OverflowResizer", ["ResizerModel", func
     }
 
     OverflowResizer.prototype.onTableReady = function() {
-        console.log("Overflow table ready");
         // For mode overflow, make table as small as possible
         $(this.ctrl.table).width(1);
     };

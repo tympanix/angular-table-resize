@@ -41,7 +41,6 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
     };
 
     ResizerModel.prototype.onFirstDrag = function () {
-        console.log("First drag", this.ctrl.columns);
         // By default, set all columns to absolute widths
         this.ctrl.columns.forEach(function(column) {
             column.setWidth(column.getWidth());

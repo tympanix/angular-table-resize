@@ -17,7 +17,6 @@ angular.module("ngTableResize").directive('resize', [function() {
     }
 
     function prelink(scope, element, attr, ctrl) {
-        console.log("Linking column", scope.$index);
         scope.resize = scope.$eval(attr.resize)
         scope.element = element
 
@@ -55,14 +54,11 @@ angular.module("ngTableResize").directive('resize', [function() {
             ctrl.removeColumn(scope)
         });
 
-        ctrl.addColumn(scope)
+        //ctrl.addColumn(scope)
     }
 
     function postlink(scope, element, attr, ctrl) {
-        if (scope.$last) {
-            console.log("RENDER!");
-            ctrl.render()
-        }
+        return
     }
 
     function initHandle(scope, ctrl, column) {
@@ -84,7 +80,6 @@ angular.module("ngTableResize").directive('resize', [function() {
         // This event starts the dragging
         $(scope.handle).mousedown(function(event) {
             if (ctrl.isFirstDrag) {
-                console.log('First drag');
                 ctrl.resizer.onFirstDrag();
                 ctrl.resizer.onTableReady()
                 ctrl.isFirstDrag = false;
