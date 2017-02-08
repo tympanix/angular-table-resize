@@ -4,7 +4,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         this.columns = []
         this.isFirstDrag = true
         this.resizer = getResizer(this)
-        var cache = resizeStorage.loadTableSizes(this.id, this.mode, this.profile)
+        var cache = {} //resizeStorage.loadTableSizes(this.id, this.mode, this.profile)
 
         this.addColumn = function(column) {
             if (Number.isInteger(column.$index)){
@@ -34,6 +34,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         }
 
         this.initialiseColumns = function() {
+            if (!this.columns || this.columns.length === 0) return
             if (this.canRestoreColumns()) {
                 this.initSavedColumns()
             } else {
@@ -143,6 +144,12 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         // Set global reference to table
         ctrl.table = $(element)
 
+        // Set id of table
+        ctrl.id = attr.id;
+
+        // Load saved columns
+        ctrl.loadSavedColumns()
+
         // Set global reference to container
         ctrl.container = attr.container ? $(attr.container) : element.parent();
 
@@ -211,7 +218,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         controllerAs: 'rzctrl',
         bindToController: true,
         scope: {
-            id: '@',
+            hello: '@?',
             mode: '=?',
             profile: '=?',
             columnsCollection: '=?columns',
