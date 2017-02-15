@@ -75,7 +75,6 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
 
         this.initDefaultColumns = function() {
             var self = this
-            cache = {}
             this.columns.forEach(function(column) {
                 column.setWidth(self.resizer.defaultWidth(column))
             })
@@ -118,7 +117,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
 
         this.saveColumnSizes = function() {
             var self = this
-            if (!cache) cache = {};
+            cache = {};
             this.columns.forEach(function(column) {
                 cache[column.resize] = self.resizer.saveAttr(column);
             })
