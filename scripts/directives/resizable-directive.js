@@ -185,11 +185,11 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         }
 
         scope.$watch(function(){
-            return $(element).find('th')
+            return $(element).find('th').length
         }, function(){
             ctrl.columns = analyzeColumns()
             ctrl.render()
-        }, true)
+        })
     }
 
     function resetTable(table) {
