@@ -185,7 +185,7 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         }
 
         scope.$watch(function(){
-            return ctrl.columnsCollection
+            return $(element).find('th')
         }, function(){
             ctrl.columns = analyzeColumns()
             ctrl.render()
