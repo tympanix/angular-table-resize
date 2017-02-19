@@ -1,4 +1,4 @@
-angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", function(ResizerModel) {
+angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", "Displacer", function(ResizerModel, Displacer) {
 
     function BasicResizer(table, columns, container) {
         // Call super constructor
@@ -53,6 +53,19 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
             column.setWidth(column.getWidth());
         })
     };
+
+    BasicResizer.prototype.displacers = function(element, scope) {
+        return [
+            new Displacer({
+                column: element,
+                calculate: Displacer.DISPLACE_ADD
+            }), 
+            new Displacer({
+                column: $(element).next(),
+                calculate: Displacer.DISPLACE_SUB
+            })
+        ]
+    }
 
     BasicResizer.prototype.onEndDrag = function () {
         // Calculates the percent width of each column

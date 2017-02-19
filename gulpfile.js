@@ -13,6 +13,7 @@ const jsFiles = [
     "scripts/directives/resize-directive.js",
     "scripts/services/resize-storage-service.js",
     "scripts/services/resizer-factory.js",
+    "scripts/services/displacer-factory.js",
     "scripts/resizers/basic-resizer.js",
     "scripts/resizers/fixed-resizer.js",
     "scripts/resizers/overflow-resizer.js"

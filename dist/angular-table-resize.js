@@ -261,12 +261,37 @@ angular.module("ngTableResize").directive('resize', [function() {
             initHandle(scope, ctrl, element)
         }
 
-        scope.initialise = function() {
-            if (ctrl.resizer.handles(scope)) {
-                initHandle(scope, ctrl, element)
-            }
+        scope.isValid = function() {
+            if (!scope.displacers || !scope.displacers.length) return false
 
+            return scope.displacers.every(function(displacer) {
+                return displacer.isValid()
+            })
+        }
+
+        scope.initialise = function() {
+            // Return if this column is not meant to be included
+            if (!ctrl.resizer.handles(scope)) return
+
+            // Get displacers for this column
+            scope.displacers = this.getDisplacers()
+
+            // Return if the model is invalid (nothing to displace)
+            if (!scope.isValid()) return
+
+            console.log("Initialised!", scope)
+
+            initHandle(scope, ctrl, element)
             //scope.setWidth(ctrl.getStoredWidth())
+        }
+
+        scope.getDisplacers = function() {
+            var displacers = ctrl.resizer.displacers(scope.element, scope)
+            if (Array.isArray(displacers)) {
+                return displacers
+            } else {
+                return [displacers]
+            }
         }
 
         scope.setWidth = function(width) {
@@ -299,9 +324,6 @@ angular.module("ngTableResize").directive('resize', [function() {
         });
         column.prepend(scope.handle);
 
-        // Use the middleware to decide which columns this handle controls
-        scope.controlledColumn = ctrl.resizer.handleMiddleware(scope, ctrl.collumns)
-
         // Bind mousedown, mousemove & mouseup events
         bindEventToHandle(scope, ctrl);
     }
@@ -317,13 +339,6 @@ angular.module("ngTableResize").directive('resize', [function() {
                 ctrl.virgin = false
             }
 
-            var optional = {}
-            if (ctrl.resizer.intervene) {
-                optional = ctrl.resizer.intervene.selector(scope.controlledColumn);
-                optional.column = optional;
-                optional.orgWidth = optional.element.outerWidth();
-            }
-
             // Prevent text-selection, object dragging ect.
             event.preventDefault();
 
@@ -335,10 +350,14 @@ angular.module("ngTableResize").directive('resize', [function() {
 
             // Get mouse and column origin measurements
             var orgX = event.clientX;
-            var orgWidth = scope.getWidth();
+
+            // Freeze all columns
+            scope.displacers.forEach(function(displacer) {
+                displacer.freeze()
+            })
 
             // On every mouse move, calculate the new width
-            $(window).mousemove(calculateWidthEvent(scope, ctrl, orgX, orgWidth, optional))
+            $(window).mousemove(calculateWidthEvent(scope, ctrl, orgX))
 
             // Stop dragging as soon as the mouse is released
             $(window).one('mouseup', unbindEvent(scope, ctrl, scope.handle))
@@ -346,26 +365,27 @@ angular.module("ngTableResize").directive('resize', [function() {
         })
     }
 
-    function calculateWidthEvent(scope, ctrl, orgX, orgWidth, optional) {
+    function calculateWidthEvent(scope, ctrl, orgX) {
         return function(event) {
             // Get current mouse position
             var newX = event.clientX;
 
-            // Use calculator function to calculate new width
+            // Calculate the difference from origin of action
             var diffX = newX - orgX;
-            var newWidth = ctrl.resizer.calculate(orgWidth, diffX);
-            // Use restric function to abort potential restriction
-            if (ctrl.resizer.restrict(newWidth)) return;
 
-            // Extra optional column
-            if (ctrl.resizer.intervene){
-                var optWidth = ctrl.resizer.intervene.calculator(optional.orgWidth, diffX);
-                if (ctrl.resizer.intervene.restrict(optWidth)) return;
-                optional.setWidth(optWidth)
-            }
+            scope.displacers.forEach(function(displacer) {
+                displacer.prepare(diffX)
+            })
 
-            // Set size
-            scope.controlledColumn.setWidth(newWidth);
+            var valid = scope.displacers.every(function(displacer) {
+                return displacer.allowed()
+            })
+
+            if (!valid) return
+
+            scope.displacers.forEach(function(displacer) {
+                displacer.commit()
+            })
         }
     }
 
@@ -415,7 +435,7 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
 
 }]);
 
-angular.module("ngTableResize").factory("ResizerModel", [function() {
+angular.module("ngTableResize").factory("ResizerModel", ["Displacer", function(Displacer) {
 
     function ResizerModel(rzctrl){
         this.strictSaving = true
@@ -469,6 +489,12 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
         return column;
     };
 
+    ResizerModel.prototype.displacers = function(element, scope) {
+        return new Displacer({
+            column: element
+        })
+    }
+
     ResizerModel.prototype.restrict = function (newWidth) {
         // By default, the new width must not be smaller that min width
         return newWidth < this.minWidth;
@@ -491,7 +517,72 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
     return ResizerModel;
 }]);
 
-angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", function(ResizerModel) {
+angular.module("ngTableResize").factory("Displacer", [function() {
+
+    function Displacer(config){
+        this.column = config.column
+        this.scope = angular.element(this.column).scope()
+        this.orgWidth = null
+        this.resizer = config.resizer
+        this.calculate = config.calculate || Displacer.DISPLACE_ADD
+        this.restrictFunc = config.restrict || Displacer.RESTRICT
+    }
+
+    Displacer.RESTRICT = function(newWidth) {
+        return newWidth < 50
+    }
+
+    Displacer.DISPLACE_ADD = function(orgWidth, diffX) {
+        return orgWidth + diffX
+    }
+
+    Displacer.DISPLACE_SUB = function(orgWidth, diffX) {
+        return orgWidth - diffX
+    }
+
+    Displacer.prototype.restrict = function(newWidth) {
+        if (this.resizer) {
+            return this.restrictFunc.call(this.resizer, newWidth)
+        } else {
+            return this.restrictFunc(newWidth)
+        }
+    }
+
+    Displacer.prototype.isValid = function() {
+        return !!this.column && !!this.scope
+    };
+
+    Displacer.prototype.freeze = function() {
+        this.orgWidth = this.scope.getWidth()
+    }
+
+    Displacer.prototype.prepare = function(diffX) {
+        this.newWidth = this.calculate(this.orgWidth, diffX)
+    }
+
+    Displacer.prototype.allowed = function() {
+        return !this.restrict(this.newWidth)
+    }
+
+    Displacer.prototype.commit = function() {
+        this.scope.setWidth(this.newWidth)
+    }
+
+    Displacer.prototype.displace = function(diffX) {
+        // Calculate new width of column
+        var newWidth = this.calculate(this.orgWidth, diffX);
+
+        // Use restric function to obey potential restriction
+        if (this.restrict(newWidth)) return;
+
+        // Set the new size of the column
+        this.scope.setWidth(newWidth);
+    }
+
+    return Displacer;
+}]);
+
+angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", "Displacer", function(ResizerModel, Displacer) {
 
     function BasicResizer(table, columns, container) {
         // Call super constructor
@@ -547,6 +638,19 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
         })
     };
 
+    BasicResizer.prototype.displacers = function(element, scope) {
+        return [
+            new Displacer({
+                column: element,
+                calculate: Displacer.DISPLACE_ADD
+            }), 
+            new Displacer({
+                column: $(element).next(),
+                calculate: Displacer.DISPLACE_SUB
+            })
+        ]
+    }
+
     BasicResizer.prototype.onEndDrag = function () {
         // Calculates the percent width of each column
         var totWidth = $(this.ctrl.table).outerWidth();
@@ -570,13 +674,13 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
 
 }]);
 
-angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", function(ResizerModel) {
+angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", "Displacer", function(ResizerModel, Displacer) {
 
     function FixedResizer(table, columns, container) {
         // Call super constructor
         ResizerModel.call(this, table, columns, container)
 
-        this.fixedColumn = $(table).find('th').first();
+        this.fixedColumn = $(this.ctrl.table).find('th').first();
         this.bound = false;
     }
 
@@ -585,36 +689,34 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", functio
 
     FixedResizer.prototype.setup = function() {
         // Hide overflow in mode fixed
-        $(this.container).css({
+        $(this.ctrl.container).css({
             overflowX: 'hidden'
         })
 
         // First column is auto to compensate for 100% table width
-        $(this.columns).first().css({
-            width: 'auto'
-        });
+        this.ctrl.columns[0].setWidth('auto')
     };
 
     FixedResizer.prototype.handles = function() {
         // Mode fixed does not require handler on last column
-        return $(this.columns).not(':last')
+        return this.ctrl.columns.slice(0,-1)
     };
 
     FixedResizer.prototype.ctrlColumns = function() {
         // In mode fixed, all but the first column should be resized
-        return $(this.columns).not(':first');
+        return this.ctrl.columns.slice(1)
     };
 
     FixedResizer.prototype.onFirstDrag = function() {
-        // Replace each column's width with absolute measurements
-        $(this.ctrlColumns).each(function(index, column) {
-            $(column).width($(column).width());
+        // Replace all column's width with absolute measurements
+        this.ctrl.columns.slice(1).forEach(function(column) {
+            column.setWidth(column.getWidth());
         })
     };
 
-    FixedResizer.prototype.handleMiddleware = function (handle, column) {
+    FixedResizer.prototype.handleMiddleware = function (column, columns) {
         // Fixed mode handles always controll next neightbour column
-        return $(column).next();
+        return column.next();
     };
 
     FixedResizer.prototype.restrict = function (newWidth) {
@@ -635,9 +737,26 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", functio
         }
     };
 
-    FixedResizer.prototype.calculate = function (orgWidth, diffX) {
+    FixedResizer.prototype.displacers = function(element, scope) {
+        return new Displacer({
+            column: $(element).next(),
+            calculate: Displacer.DISPLACE_SUB,
+            resizer: this,
+            restrict: this.restrict
+        })
+    }
+
+    FixedResizer.prototype.calculate = function(orgWidth, diffX) {
         // Subtract difference - neightbour grows
         return orgWidth - diffX;
+    };
+
+    FixedResizer.prototype.saveAttr = function(column) {
+        if (column === this.ctrl.columns[0]) {
+            return 'auto'
+        } else {
+            return column.getWidth()
+        }
     };
 
     // Return constructor

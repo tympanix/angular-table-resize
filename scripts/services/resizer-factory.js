@@ -1,4 +1,4 @@
-angular.module("ngTableResize").factory("ResizerModel", [function() {
+angular.module("ngTableResize").factory("ResizerModel", ["Displacer", function(Displacer) {
 
     function ResizerModel(rzctrl){
         this.strictSaving = true
@@ -51,6 +51,12 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
         // By default, every handle controls the column it is placed in
         return column;
     };
+
+    ResizerModel.prototype.displacers = function(element, scope) {
+        return new Displacer({
+            column: element
+        })
+    }
 
     ResizerModel.prototype.restrict = function (newWidth) {
         // By default, the new width must not be smaller that min width

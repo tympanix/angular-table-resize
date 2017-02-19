@@ -1,10 +1,10 @@
-angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", function(ResizerModel) {
+angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", "Displacer", function(ResizerModel, Displacer) {
 
     function FixedResizer(table, columns, container) {
         // Call super constructor
         ResizerModel.call(this, table, columns, container)
 
-        this.fixedColumn = $(table).find('th').first();
+        this.fixedColumn = $(this.ctrl.table).find('th').first();
         this.bound = false;
     }
 
@@ -13,36 +13,34 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", functio
 
     FixedResizer.prototype.setup = function() {
         // Hide overflow in mode fixed
-        $(this.container).css({
+        $(this.ctrl.container).css({
             overflowX: 'hidden'
         })
 
         // First column is auto to compensate for 100% table width
-        $(this.columns).first().css({
-            width: 'auto'
-        });
+        this.ctrl.columns[0].setWidth('auto')
     };
 
     FixedResizer.prototype.handles = function() {
         // Mode fixed does not require handler on last column
-        return $(this.columns).not(':last')
+        return this.ctrl.columns.slice(0,-1)
     };
 
     FixedResizer.prototype.ctrlColumns = function() {
         // In mode fixed, all but the first column should be resized
-        return $(this.columns).not(':first');
+        return this.ctrl.columns.slice(1)
     };
 
     FixedResizer.prototype.onFirstDrag = function() {
-        // Replace each column's width with absolute measurements
-        $(this.ctrlColumns).each(function(index, column) {
-            $(column).width($(column).width());
+        // Replace all column's width with absolute measurements
+        this.ctrl.columns.slice(1).forEach(function(column) {
+            column.setWidth(column.getWidth());
         })
     };
 
-    FixedResizer.prototype.handleMiddleware = function (handle, column) {
+    FixedResizer.prototype.handleMiddleware = function (column, columns) {
         // Fixed mode handles always controll next neightbour column
-        return $(column).next();
+        return column.next();
     };
 
     FixedResizer.prototype.restrict = function (newWidth) {
@@ -63,9 +61,26 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", functio
         }
     };
 
-    FixedResizer.prototype.calculate = function (orgWidth, diffX) {
+    FixedResizer.prototype.displacers = function(element, scope) {
+        return new Displacer({
+            column: $(element).next(),
+            calculate: Displacer.DISPLACE_SUB,
+            resizer: this,
+            restrict: this.restrict
+        })
+    }
+
+    FixedResizer.prototype.calculate = function(orgWidth, diffX) {
         // Subtract difference - neightbour grows
         return orgWidth - diffX;
+    };
+
+    FixedResizer.prototype.saveAttr = function(column) {
+        if (column === this.ctrl.columns[0]) {
+            return 'auto'
+        } else {
+            return column.getWidth()
+        }
     };
 
     // Return constructor

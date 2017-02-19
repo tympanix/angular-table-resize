@@ -30,12 +30,37 @@ angular.module("ngTableResize").directive('resize', [function() {
             initHandle(scope, ctrl, element)
         }
 
-        scope.initialise = function() {
-            if (ctrl.resizer.handles(scope)) {
-                initHandle(scope, ctrl, element)
-            }
+        scope.isValid = function() {
+            if (!scope.displacers || !scope.displacers.length) return false
 
+            return scope.displacers.every(function(displacer) {
+                return displacer.isValid()
+            })
+        }
+
+        scope.initialise = function() {
+            // Return if this column is not meant to be included
+            if (!ctrl.resizer.handles(scope)) return
+
+            // Get displacers for this column
+            scope.displacers = this.getDisplacers()
+
+            // Return if the model is invalid (nothing to displace)
+            if (!scope.isValid()) return
+
+            console.log("Initialised!", scope)
+
+            initHandle(scope, ctrl, element)
             //scope.setWidth(ctrl.getStoredWidth())
+        }
+
+        scope.getDisplacers = function() {
+            var displacers = ctrl.resizer.displacers(scope.element, scope)
+            if (Array.isArray(displacers)) {
+                return displacers
+            } else {
+                return [displacers]
+            }
         }
 
         scope.setWidth = function(width) {
@@ -68,9 +93,6 @@ angular.module("ngTableResize").directive('resize', [function() {
         });
         column.prepend(scope.handle);
 
-        // Use the middleware to decide which columns this handle controls
-        scope.controlledColumn = ctrl.resizer.handleMiddleware(scope, ctrl.collumns)
-
         // Bind mousedown, mousemove & mouseup events
         bindEventToHandle(scope, ctrl);
     }
@@ -86,13 +108,6 @@ angular.module("ngTableResize").directive('resize', [function() {
                 ctrl.virgin = false
             }
 
-            var optional = {}
-            if (ctrl.resizer.intervene) {
-                optional = ctrl.resizer.intervene.selector(scope.controlledColumn);
-                optional.column = optional;
-                optional.orgWidth = optional.element.outerWidth();
-            }
-
             // Prevent text-selection, object dragging ect.
             event.preventDefault();
 
@@ -104,10 +119,14 @@ angular.module("ngTableResize").directive('resize', [function() {
 
             // Get mouse and column origin measurements
             var orgX = event.clientX;
-            var orgWidth = scope.getWidth();
+
+            // Freeze all columns
+            scope.displacers.forEach(function(displacer) {
+                displacer.freeze()
+            })
 
             // On every mouse move, calculate the new width
-            $(window).mousemove(calculateWidthEvent(scope, ctrl, orgX, orgWidth, optional))
+            $(window).mousemove(calculateWidthEvent(scope, ctrl, orgX))
 
             // Stop dragging as soon as the mouse is released
             $(window).one('mouseup', unbindEvent(scope, ctrl, scope.handle))
@@ -115,26 +134,27 @@ angular.module("ngTableResize").directive('resize', [function() {
         })
     }
 
-    function calculateWidthEvent(scope, ctrl, orgX, orgWidth, optional) {
+    function calculateWidthEvent(scope, ctrl, orgX) {
         return function(event) {
             // Get current mouse position
             var newX = event.clientX;
 
-            // Use calculator function to calculate new width
+            // Calculate the difference from origin of action
             var diffX = newX - orgX;
-            var newWidth = ctrl.resizer.calculate(orgWidth, diffX);
-            // Use restric function to abort potential restriction
-            if (ctrl.resizer.restrict(newWidth)) return;
 
-            // Extra optional column
-            if (ctrl.resizer.intervene){
-                var optWidth = ctrl.resizer.intervene.calculator(optional.orgWidth, diffX);
-                if (ctrl.resizer.intervene.restrict(optWidth)) return;
-                optional.setWidth(optWidth)
-            }
+            scope.displacers.forEach(function(displacer) {
+                displacer.prepare(diffX)
+            })
 
-            // Set size
-            scope.controlledColumn.setWidth(newWidth);
+            var valid = scope.displacers.every(function(displacer) {
+                return displacer.allowed()
+            })
+
+            if (!valid) return
+
+            scope.displacers.forEach(function(displacer) {
+                displacer.commit()
+            })
         }
     }
 
