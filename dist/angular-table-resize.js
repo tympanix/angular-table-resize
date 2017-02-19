@@ -472,11 +472,6 @@ angular.module("ngTableResize").factory("ResizerModel", ["Displacer", function(D
         return true
     };
 
-    ResizerModel.prototype.ctrlColumns = function () {
-        // By default all columns assigned a handle are resized
-        return true
-    };
-
     ResizerModel.prototype.onFirstDrag = function () {
         // By default, set all columns to absolute widths
         this.ctrl.columns.forEach(function(column) {
@@ -484,26 +479,11 @@ angular.module("ngTableResize").factory("ResizerModel", ["Displacer", function(D
         })
     };
 
-    ResizerModel.prototype.handleMiddleware = function (column, columns) {
-        // By default, every handle controls the column it is placed in
-        return column;
-    };
-
     ResizerModel.prototype.displacers = function(element, scope) {
         return new Displacer({
             column: element
         })
     }
-
-    ResizerModel.prototype.restrict = function (newWidth) {
-        // By default, the new width must not be smaller that min width
-        return newWidth < this.minWidth;
-    };
-
-    ResizerModel.prototype.calculate = function (orgWidth, diffX) {
-        // By default, simply add the width difference to the original
-        return orgWidth + diffX;
-    };
 
     ResizerModel.prototype.onEndDrag = function () {
         // By default, do nothing when dragging a column ends
@@ -587,31 +567,11 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", "Displa
     function BasicResizer(table, columns, container) {
         // Call super constructor
         ResizerModel.call(this, table, columns, container)
-
-        // All columns are controlled in basic mode
-        this.ctrlColumns = this.columns;
-
-        this.intervene = {
-            selector: interveneSelector,
-            calculator: interveneCalculator,
-            restrict: interveneRestrict
-        }
     }
 
     // Inherit by prototypal inheritance
     BasicResizer.prototype = Object.create(ResizerModel.prototype);
 
-    function interveneSelector(column) {
-        return column.next()
-    }
-
-    function interveneCalculator(orgWidth, diffX) {
-        return orgWidth - diffX;
-    }
-
-    function interveneRestrict(newWidth){
-        return newWidth < 50;
-    }
 
     BasicResizer.prototype.setup = function(container, columns) {
         // Hide overflow in mode fixed
@@ -702,21 +662,11 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", "Displa
         return this.ctrl.columns.slice(0,-1)
     };
 
-    FixedResizer.prototype.ctrlColumns = function() {
-        // In mode fixed, all but the first column should be resized
-        return this.ctrl.columns.slice(1)
-    };
-
     FixedResizer.prototype.onFirstDrag = function() {
         // Replace all column's width with absolute measurements
         this.ctrl.columns.slice(1).forEach(function(column) {
             column.setWidth(column.getWidth());
         })
-    };
-
-    FixedResizer.prototype.handleMiddleware = function (column, columns) {
-        // Fixed mode handles always controll next neightbour column
-        return column.next();
     };
 
     FixedResizer.prototype.restrict = function (newWidth) {
@@ -745,11 +695,6 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", "Displa
             restrict: this.restrict
         })
     }
-
-    FixedResizer.prototype.calculate = function(orgWidth, diffX) {
-        // Subtract difference - neightbour grows
-        return orgWidth - diffX;
-    };
 
     FixedResizer.prototype.saveAttr = function(column) {
         if (column === this.ctrl.columns[0]) {

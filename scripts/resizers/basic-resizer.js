@@ -3,31 +3,11 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", "Displa
     function BasicResizer(table, columns, container) {
         // Call super constructor
         ResizerModel.call(this, table, columns, container)
-
-        // All columns are controlled in basic mode
-        this.ctrlColumns = this.columns;
-
-        this.intervene = {
-            selector: interveneSelector,
-            calculator: interveneCalculator,
-            restrict: interveneRestrict
-        }
     }
 
     // Inherit by prototypal inheritance
     BasicResizer.prototype = Object.create(ResizerModel.prototype);
 
-    function interveneSelector(column) {
-        return column.next()
-    }
-
-    function interveneCalculator(orgWidth, diffX) {
-        return orgWidth - diffX;
-    }
-
-    function interveneRestrict(newWidth){
-        return newWidth < 50;
-    }
 
     BasicResizer.prototype.setup = function(container, columns) {
         // Hide overflow in mode fixed

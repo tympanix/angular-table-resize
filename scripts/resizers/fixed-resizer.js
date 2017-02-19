@@ -26,21 +26,11 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", "Displa
         return this.ctrl.columns.slice(0,-1)
     };
 
-    FixedResizer.prototype.ctrlColumns = function() {
-        // In mode fixed, all but the first column should be resized
-        return this.ctrl.columns.slice(1)
-    };
-
     FixedResizer.prototype.onFirstDrag = function() {
         // Replace all column's width with absolute measurements
         this.ctrl.columns.slice(1).forEach(function(column) {
             column.setWidth(column.getWidth());
         })
-    };
-
-    FixedResizer.prototype.handleMiddleware = function (column, columns) {
-        // Fixed mode handles always controll next neightbour column
-        return column.next();
     };
 
     FixedResizer.prototype.restrict = function (newWidth) {
@@ -69,11 +59,6 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", "Displa
             restrict: this.restrict
         })
     }
-
-    FixedResizer.prototype.calculate = function(orgWidth, diffX) {
-        // Subtract difference - neightbour grows
-        return orgWidth - diffX;
-    };
 
     FixedResizer.prototype.saveAttr = function(column) {
         if (column === this.ctrl.columns[0]) {

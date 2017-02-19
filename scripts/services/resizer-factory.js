@@ -35,11 +35,6 @@ angular.module("ngTableResize").factory("ResizerModel", ["Displacer", function(D
         return true
     };
 
-    ResizerModel.prototype.ctrlColumns = function () {
-        // By default all columns assigned a handle are resized
-        return true
-    };
-
     ResizerModel.prototype.onFirstDrag = function () {
         // By default, set all columns to absolute widths
         this.ctrl.columns.forEach(function(column) {
@@ -47,26 +42,11 @@ angular.module("ngTableResize").factory("ResizerModel", ["Displacer", function(D
         })
     };
 
-    ResizerModel.prototype.handleMiddleware = function (column, columns) {
-        // By default, every handle controls the column it is placed in
-        return column;
-    };
-
     ResizerModel.prototype.displacers = function(element, scope) {
         return new Displacer({
             column: element
         })
     }
-
-    ResizerModel.prototype.restrict = function (newWidth) {
-        // By default, the new width must not be smaller that min width
-        return newWidth < this.minWidth;
-    };
-
-    ResizerModel.prototype.calculate = function (orgWidth, diffX) {
-        // By default, simply add the width difference to the original
-        return orgWidth + diffX;
-    };
 
     ResizerModel.prototype.onEndDrag = function () {
         // By default, do nothing when dragging a column ends
