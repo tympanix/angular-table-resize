@@ -3,6 +3,7 @@ angular.module("ngTableResize", []);
 angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
 
     var mode;
+    var saveTableSizes;
 
     var columns = null;
     var ctrlColumns = null;
@@ -72,14 +73,17 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         columns = $(table).find('th');
 
         mode = scope.mode;
+        saveTableSizes = angular.isDefined(scope.saveTableSizes) ? scope.saveTableSizes : true;
 
         // Get the resizer object for the current mode
         var ResizeModel = getResizer(scope, attr);
         if (!ResizeModel) return;
         resizer = new ResizeModel(table, columns, container);
 
-        // Load column sized from saved storage
-        cache = resizeStorage.loadTableSizes(table, scope.mode)
+        if (saveTableSizes) {
+            // Load column sizes from saved storage
+            cache = resizeStorage.loadTableSizes(table, scope.mode)
+        }
 
         // Decide which columns should have a handler attached
         handleColumns = resizer.handles(columns);
@@ -102,7 +106,6 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
 
     function setColumnSizes(cache) {
         if (!cache) {
-            resetTable(table);
             return;
         }
 
@@ -223,6 +226,8 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
     }
 
     function saveColumnSizes() {
+        if (!saveTableSizes) return;
+
         if (!cache) cache = {};
         $(columns).each(function(index, column) {
             var id = $(column).attr('id');
@@ -239,6 +244,8 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         link: link,
         scope: {
             mode: '=',
+            // whether to save table sizes; default true
+            saveTableSizes: '=?',
             bind: '=',
             container: '@'
         }
