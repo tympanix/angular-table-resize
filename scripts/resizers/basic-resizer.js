@@ -34,11 +34,6 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
         $(this.container).css({
             overflowX: 'hidden'
         })
-
-        // First column is auto to compensate for 100% table width
-        $(this.columns).first().css({
-            width: 'auto'
-        });
     };
 
     BasicResizer.prototype.handles = function() {
