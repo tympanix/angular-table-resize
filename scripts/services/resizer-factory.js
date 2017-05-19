@@ -1,8 +1,6 @@
 angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     function ResizerModel(table, columns, container){
-        this.minWidth = 25;
-
         this.table = table;
         this.columns = columns;
         this.container = container;
@@ -46,8 +44,7 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
     };
 
     ResizerModel.prototype.restrict = function (newWidth) {
-        // By default, the new width must not be smaller that min width
-        return newWidth < this.minWidth;
+        return false;
     };
 
     ResizerModel.prototype.calculate = function (orgWidth, diffX) {

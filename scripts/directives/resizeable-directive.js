@@ -1,6 +1,7 @@
 angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
 
     var mode;
+    var saveTableSizes;
 
     var columns = null;
     var ctrlColumns = null;
@@ -70,14 +71,17 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         columns = $(table).find('th');
 
         mode = scope.mode;
+        saveTableSizes = angular.isDefined(scope.saveTableSizes) ? scope.saveTableSizes : true;
 
         // Get the resizer object for the current mode
         var ResizeModel = getResizer(scope, attr);
         if (!ResizeModel) return;
         resizer = new ResizeModel(table, columns, container);
 
-        // Load column sized from saved storage
-        cache = resizeStorage.loadTableSizes(table, scope.mode)
+        if (saveTableSizes) {
+            // Load column sizes from saved storage
+            cache = resizeStorage.loadTableSizes(table, scope.mode)
+        }
 
         // Decide which columns should have a handler attached
         handleColumns = resizer.handles(columns);
@@ -100,7 +104,6 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
 
     function setColumnSizes(cache) {
         if (!cache) {
-            resetTable(table);
             return;
         }
 
@@ -180,19 +183,25 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
             var diffX = newX - orgX;
             var newWidth = resizer.calculate(orgWidth, diffX);
 
-            // Use restric function to abort potential restriction
+            if (newWidth < getMinWidth(column)) return;
             if (resizer.restrict(newWidth)) return;
 
             // Extra optional column
             if (resizer.intervene){
                 var optWidth = resizer.intervene.calculator(optional.orgWidth, diffX);
+                if (optWidth < getMinWidth(optional.column)) return;
                 if (resizer.intervene.restrict(optWidth)) return;
-                $(optional).width(optWidth)
+                $(optional.column).width(optWidth)
             }
 
             // Set size
             $(column).width(newWidth);
         }
+    }
+
+    function getMinWidth(column) {
+        // "25px" -> 25
+        return parseInt($(column).css('min-width')) || 0;
     }
 
     function getResizer(scope, attr) {
@@ -221,6 +230,8 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
     }
 
     function saveColumnSizes() {
+        if (!saveTableSizes) return;
+
         if (!cache) cache = {};
         $(columns).each(function(index, column) {
             var id = $(column).attr('id');
@@ -237,6 +248,8 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         link: link,
         scope: {
             mode: '=',
+            // whether to save table sizes; default true
+            saveTableSizes: '=?',
             bind: '=',
             container: '@'
         }
