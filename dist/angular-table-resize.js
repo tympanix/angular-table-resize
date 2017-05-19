@@ -185,19 +185,25 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
             var diffX = newX - orgX;
             var newWidth = resizer.calculate(orgWidth, diffX);
 
-            // Use restric function to abort potential restriction
+            if (newWidth < getMinWidth(column)) return;
             if (resizer.restrict(newWidth)) return;
 
             // Extra optional column
             if (resizer.intervene){
                 var optWidth = resizer.intervene.calculator(optional.orgWidth, diffX);
+                if (optWidth < getMinWidth(optional.column)) return;
                 if (resizer.intervene.restrict(optWidth)) return;
-                $(optional).width(optWidth)
+                $(optional.column).width(optWidth)
             }
 
             // Set size
             $(column).width(newWidth);
         }
+    }
+
+    function getMinWidth(column) {
+        // "25px" -> 25
+        return parseInt($(column).css('min-width')) || 0;
     }
 
     function getResizer(scope, attr) {
@@ -284,8 +290,6 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
 angular.module("ngTableResize").factory("ResizerModel", [function() {
 
     function ResizerModel(table, columns, container){
-        this.minWidth = 25;
-
         this.table = table;
         this.columns = columns;
         this.container = container;
@@ -329,8 +333,7 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
     };
 
     ResizerModel.prototype.restrict = function (newWidth) {
-        // By default, the new width must not be smaller that min width
-        return newWidth < this.minWidth;
+        return false;
     };
 
     ResizerModel.prototype.calculate = function (orgWidth, diffX) {

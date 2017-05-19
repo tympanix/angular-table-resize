@@ -4,7 +4,7 @@
 
 table.resize th {
     position: relative;
-    min-width: 10px !important;
+    min-width: 25px;
 }
 
 table.resize tr th .handle {
