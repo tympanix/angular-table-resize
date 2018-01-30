@@ -2,14 +2,14 @@
 <table resizeable mode="tableMode" profile="profile" class="ui single line unstackable selectable fixed compact torrent table" id="myTable">
     <thead>
         <tr>
-            <th id="colName">Name</th>
-            <th id="colStatus" class="four wide">
+            <th id="colName" resize-col="'colName'">Name</th>
+            <th id="colStatus" resize-col="'colStatus'" class="four wide">
                 Status</th>
-            <th ng-if="notes" id="colNotes" class="four wide">
+            <th id="colNotes" resize-col="'colNotes'" ng-if="notes" class="four wide">
                 Notes</th>
-            <th id="colMore" class="two wide">
+            <th id="colMore" resize-col="'colMore'" class="two wide">
                 More</th>
-            <th id="colEvenMore" class="one wide">
+            <th id="colEvenMore" resize-col="'colEvenMore'" class="one wide">
                 Even More</th>
         </tr>
     </thead>

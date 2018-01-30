@@ -14,6 +14,10 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
 
     var cache = null;
 
+    function controller() {
+
+    }
+
     function link(scope, element, attr) {
         // Set global reference to table
         table = element;
@@ -42,7 +46,8 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
 
     function setUpWatchers(table, attr, scope) {
         scope.$watch('profile', function(newVal, oldVal) {
-            console.log("Hey man")
+            cleanUpAll(table);
+            initialiseAll(table, attr, scope);
         })
     }
 
@@ -123,22 +128,6 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
             initHandle(table, column);
         })
 
-    }
-
-    function setColumnSizes(cache) {
-        if (!cache) {
-            return;
-        }
-
-        $(table).width('auto');
-
-        ctrlColumns.each(function(index, column){
-            var id = $(column).attr('id');
-            var cacheWidth = cache[id];
-            $(column).css({ width: cacheWidth });
-        })
-
-        resizer.onTableReady();
     }
 
     function initHandle(table, column) {
@@ -257,7 +246,8 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
 
         if (!cache) cache = {};
         $(columns).each(function(index, column) {
-            var id = $(column).attr('id');
+            var colScope = angular.element(column).scope()
+            var id = colScope.colName || $(column).attr('id')
             if (!id) return;
             cache[id] = resizer.saveAttr(column);
         })
@@ -265,10 +255,29 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         resizeStorage.saveTableSizes(table, mode, profile, cache);
     }
 
+    function setColumnSizes(cache) {
+        if (!cache) {
+            return;
+        }
+
+        $(table).width('auto');
+
+        ctrlColumns.each(function(index, column){
+            var colScope = angular.element(column).scope()
+            var id = colScope.colName || $(column).attr('id')
+            var cacheWidth = cache[id];
+            $(column).css({ width: cacheWidth });
+        })
+
+        resizer.onTableReady();
+    }
+
     // Return this directive as a object literal
     return {
         restrict: 'A',
         link: link,
+        controller: controller,
+        controllerAs: 'rzctrl',
         scope: {
             mode: '=',
             profile: '=?',
