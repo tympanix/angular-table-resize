@@ -2,6 +2,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
 
     var mode;
     var saveTableSizes;
+    var profile;
 
     var columns = null;
     var ctrlColumns = null;
@@ -34,6 +35,15 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
 
         // Watch for changes in columns
         watchTableChanges(table, attr, scope)
+
+        // Watch for scope bindings
+        setUpWatchers(table, attr, scope)
+    }
+
+    function setUpWatchers(table, attr, scope) {
+        scope.$watch('profile', function(newVal, oldVal) {
+            console.log("Hey man")
+        })
     }
 
     function bindUtilityFunctions(table, attr, scope) {
@@ -84,6 +94,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
 
         mode = scope.mode;
         saveTableSizes = angular.isDefined(scope.saveTableSizes) ? scope.saveTableSizes : true;
+        profile = scope.profile;
 
         // Get the resizer object for the current mode
         var ResizeModel = getResizer(scope, attr);
@@ -92,7 +103,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
 
         if (saveTableSizes) {
             // Load column sizes from saved storage
-            cache = resizeStorage.loadTableSizes(table, scope.mode)
+            cache = resizeStorage.loadTableSizes(table, scope.mode, scope.profile)
         }
 
         // Decide which columns should have a handler attached
@@ -251,7 +262,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
             cache[id] = resizer.saveAttr(column);
         })
 
-        resizeStorage.saveTableSizes(table, mode, cache);
+        resizeStorage.saveTableSizes(table, mode, profile, cache);
     }
 
     // Return this directive as a object literal
@@ -260,6 +271,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         link: link,
         scope: {
             mode: '=',
+            profile: '=?',
             // whether to save table sizes; default true
             saveTableSizes: '=?',
             bind: '=',

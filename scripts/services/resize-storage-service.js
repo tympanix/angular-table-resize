@@ -2,26 +2,26 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
 
     var prefix = "ngColumnResize";
 
-    this.loadTableSizes = function(table, model) {
-        var key = getStorageKey(table, model);
+    this.loadTableSizes = function(table, mode, profile) {
+        var key = getStorageKey(table, mode, profile);
         var object = $window.localStorage.getItem(key);
         return JSON.parse(object);
     }
 
-    this.saveTableSizes = function(table, model, sizes) {
-        var key = getStorageKey(table, model);
+    this.saveTableSizes = function(table, mode, profile, sizes) {
+        var key = getStorageKey(table, mode, profile);
         if (!key) return;
         var string = JSON.stringify(sizes);
         $window.localStorage.setItem(key, string)
     }
 
-    function getStorageKey(table, mode) {
+    function getStorageKey(table, mode, profile) {
         var id = table.attr('id');
         if (!id) {
             console.error("Table has no id", table);
             return undefined;
         }
-        return prefix + '.' + table.attr('id') + '.' + mode;
+        return prefix + '.' + table.attr('id') + '.' + mode + (profile ? '.' + profile : '');
     }
 
 }]);

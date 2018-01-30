@@ -7,6 +7,8 @@ devapp.controller('main-controller', ['$scope', '$timeout', function($scope, $ti
 
     $scope.notes = true;
 
+    $scope.profile = 'one'
+
     var i = 1;
 
     $timeout(function() {

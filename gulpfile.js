@@ -37,7 +37,9 @@ gulp.task('update', function() {
 });
 
 gulp.task('watch', function() {
-    gulp.watch(['index.html', 'css/**', 'scripts/**', 'views/**', 'demo/**'], browsersync.reload);
+    gulp.watch(['index.html', 'css/**', 'scripts/**', 'views/**', 'demo/**'], function() {
+        runSequence('build', browsersync.reload)
+    });
 });
 
 gulp.task('dev', function() {

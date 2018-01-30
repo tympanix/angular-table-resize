@@ -34,6 +34,10 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
         $(this.container).css({
             overflowX: 'hidden'
         })
+
+        $(this.table).css({
+            width: '100%'
+        })
     };
 
     BasicResizer.prototype.handles = function() {
