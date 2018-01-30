@@ -49,8 +49,7 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
     function watchTableChanges(table, attr, scope) {
         scope.$watch(function () {
           return $(table).find('th').length;
-        }, function (newColLength) {
-          console.log("YEH BOOOOI", newColLength)
+        }, function (/*newColLength*/) {
             cleanUpAll(table);
             initialiseAll(table, attr, scope);
         });
