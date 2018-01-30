@@ -45,22 +45,21 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", functio
         return $(column).next();
     };
 
-    FixedResizer.prototype.restrict = function (newWidth) {
-        if (this.bound) {
-            if (newWidth < this.bound) {
-                $(this.fixedColumn).width('auto');
-                this.bound = false;
-                return false;
-            } else {
-                return true;
-            }
-        } else if (newWidth < this.minWidth) {
-            return true;
-        } else if ($(this.fixedColumn).width() <= this.minWidth) {
-            this.bound = newWidth;
+    FixedResizer.prototype.restrict = function (newWidth, diffX) {
+        if (this.bound && this.bound < diffX) {
+          this.bound = false
+          return false
+        } if (this.bound && this.bound > diffX) {
+          return true
+        } else if (this.fixedColumn.width() <= this.getMinWidth(this.fixedColumn)) {
+            this.bound = diffX
             $(this.fixedColumn).width(this.minWidth);
             return true;
         }
+    };
+
+    FixedResizer.prototype.onEndDrag = function () {
+        this.bound = false
     };
 
     FixedResizer.prototype.calculate = function (orgWidth, diffX) {

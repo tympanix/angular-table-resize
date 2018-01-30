@@ -21,6 +21,11 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
         $(this.table).outerWidth('100%');
     };
 
+    ResizerModel.prototype.getMinWidth = function(column) {
+        // "25px" -> 25
+        return parseInt($(column).css('min-width')) || 0;
+    }
+
     ResizerModel.prototype.handles = function () {
         // By default all columns should be assigned a handle
         return this.columns;

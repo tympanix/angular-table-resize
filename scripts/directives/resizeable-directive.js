@@ -196,13 +196,13 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
             var newWidth = resizer.calculate(orgWidth, diffX);
 
             if (newWidth < getMinWidth(column)) return;
-            if (resizer.restrict(newWidth)) return;
+            if (resizer.restrict(newWidth, diffX)) return;
 
             // Extra optional column
             if (resizer.intervene){
                 var optWidth = resizer.intervene.calculator(optional.orgWidth, diffX);
                 if (optWidth < getMinWidth(optional.column)) return;
-                if (resizer.intervene.restrict(optWidth)) return;
+                if (resizer.intervene.restrict(optWidth, diffX)) return;
                 $(optional.column).width(optWidth)
             }
 

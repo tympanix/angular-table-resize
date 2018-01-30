@@ -198,13 +198,13 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
             var newWidth = resizer.calculate(orgWidth, diffX);
 
             if (newWidth < getMinWidth(column)) return;
-            if (resizer.restrict(newWidth)) return;
+            if (resizer.restrict(newWidth, diffX)) return;
 
             // Extra optional column
             if (resizer.intervene){
                 var optWidth = resizer.intervene.calculator(optional.orgWidth, diffX);
                 if (optWidth < getMinWidth(optional.column)) return;
-                if (resizer.intervene.restrict(optWidth)) return;
+                if (resizer.intervene.restrict(optWidth, diffX)) return;
                 $(optional.column).width(optWidth)
             }
 
@@ -321,6 +321,11 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
         // Table is by default 100% width
         $(this.table).outerWidth('100%');
     };
+
+    ResizerModel.prototype.getMinWidth = function(column) {
+        // "25px" -> 25
+        return parseInt($(column).css('min-width')) || 0;
+    }
 
     ResizerModel.prototype.handles = function () {
         // By default all columns should be assigned a handle
@@ -488,22 +493,21 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", functio
         return $(column).next();
     };
 
-    FixedResizer.prototype.restrict = function (newWidth) {
-        if (this.bound) {
-            if (newWidth < this.bound) {
-                $(this.fixedColumn).width('auto');
-                this.bound = false;
-                return false;
-            } else {
-                return true;
-            }
-        } else if (newWidth < this.minWidth) {
-            return true;
-        } else if ($(this.fixedColumn).width() <= this.minWidth) {
-            this.bound = newWidth;
+    FixedResizer.prototype.restrict = function (newWidth, diffX) {
+        if (this.bound && this.bound < diffX) {
+          this.bound = false
+          return false
+        } if (this.bound && this.bound > diffX) {
+          return true
+        } else if (this.fixedColumn.width() <= this.getMinWidth(this.fixedColumn)) {
+            this.bound = diffX
             $(this.fixedColumn).width(this.minWidth);
             return true;
         }
+    };
+
+    FixedResizer.prototype.onEndDrag = function () {
+        this.bound = false
     };
 
     FixedResizer.prototype.calculate = function (orgWidth, diffX) {
