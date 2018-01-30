@@ -1,6 +1,6 @@
 {
   "name": "angular-table-resize",
-  "version": "1.0.11",
+  "version": "1.0.12",
   "description": "An AngularJS module for resizing table columns!",
   "main": "./dist/angular-table-resize.js",
   "scripts": {
