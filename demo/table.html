@@ -5,7 +5,7 @@
             <th id="colName">Name</th>
             <th id="colStatus" class="four wide">
                 Status</th>
-            <th id="colNotes" class="four wide">
+            <th ng-if="notes" id="colNotes" class="four wide">
                 Notes</th>
             <th id="colMore" class="two wide">
                 More</th>
@@ -17,7 +17,7 @@
         <tr ng-repeat="item in items">
             <td>{{item}}</td>
             <td>Approved</td>
-            <td>None</td>
+            <td ng-if="notes">None</td>
             <td>Even more none</td>
             <td>Black hole</td>
         </tr>

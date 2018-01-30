@@ -5,6 +5,8 @@ devapp.controller('main-controller', ['$scope', '$timeout', function($scope, $ti
 
     $scope.tableMode = "FixedResizer";
 
+    $scope.notes = true;
+
     var i = 1;
 
     $timeout(function() {

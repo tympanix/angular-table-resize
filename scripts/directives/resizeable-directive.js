@@ -30,7 +30,10 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
         bindUtilityFunctions(table, attr, scope)
 
         // Watch for mode changes and update all
-        watchModeChange(table, attr, scope);
+        watchModeChange(table, attr, scope)
+
+        // Watch for changes in columns
+        watchTableChanges(table, attr, scope)
     }
 
     function bindUtilityFunctions(table, attr, scope) {
@@ -41,6 +44,16 @@ angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$inje
                 initialiseAll(table, attr, scope);
             }
         }
+    }
+
+    function watchTableChanges(table, attr, scope) {
+        scope.$watch(function () {
+          return $(table).find('th').length;
+        }, function (newColLength) {
+          console.log("YEH BOOOOI", newColLength)
+            cleanUpAll(table);
+            initialiseAll(table, attr, scope);
+        });
     }
 
     function watchModeChange(table, attr, scope) {
