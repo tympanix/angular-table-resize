@@ -302,7 +302,7 @@ angular.module("rzTable").directive('rzCol', [function() {
   };
 
   function link(scope, element, attr) {
-    scope.colName = scope.$eval(attr.resizeCol)
+    scope.colName = scope.$eval(attr.rzCol)
   }
 }])
 angular.module("rzTable").service('resizeStorage', ['$window', function($window) {
