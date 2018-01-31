@@ -249,7 +249,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
         if (!cache) cache = {};
         $(columns).each(function(index, column) {
             var colScope = angular.element(column).scope()
-            var id = colScope.colName || $(column).attr('id')
+            var id = colScope.rzCol || $(column).attr('id')
             if (!id) return;
             cache[id] = resizer.saveAttr(column);
         })
@@ -266,7 +266,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
 
         ctrlColumns.each(function(index, column){
             var colScope = angular.element(column).scope()
-            var id = colScope.colName || $(column).attr('id')
+            var id = colScope.rzCol || $(column).attr('id')
             var cacheWidth = cache[id];
             $(column).css({ width: cacheWidth });
         })
@@ -302,7 +302,7 @@ angular.module("rzTable").directive('rzCol', [function() {
   };
 
   function link(scope, element, attr) {
-    scope.colName = scope.$eval(attr.rzCol)
+    scope.rzCol = scope.$eval(attr.rzCol)
   }
 }])
 angular.module("rzTable").service('resizeStorage', ['$window', function($window) {
