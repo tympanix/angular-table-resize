@@ -19,7 +19,7 @@ const jsFiles = [
 ]
 
 const cssFiles = [
-    "css/table-resize.css"
+    "css/angular-table-resize.css"
 ]
 
 const DIST = './dist/';
