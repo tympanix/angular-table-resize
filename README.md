@@ -100,12 +100,11 @@ You may supply optional/additional options to the module for your personalizatio
 * #### `onResizeInProgress`: *`function(column, newWidth, diffX)`*
   Callback function. Called for every tick in the resizing process.
   
-* #### `handleClassActive`: *`string`*
-  The class appended to the handle, when a column is being resized. Default is `rz-handle-active`.
-  
 * #### `tableClass`: *`string`*
   The class appended to the table for styling purposes. Default is `rz-table`.
   
 * #### `handleClass`: *`string`*
   The class appended to handles for styling purposes. Default is `rz-handle`
 
+* #### `handleClassActive`: *`string`*
+  The class appended to the handle, when a column is being resized. Default is `rz-handle-active`.
