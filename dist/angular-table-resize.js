@@ -9,6 +9,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
     var columns = null;
     var ctrlColumns = null;
     var handleColumns = null;
+    var listener = null;
     var handles = []
     var table = null;
     var container = null;
@@ -189,11 +190,11 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
             var orgWidth = $(column).width();
 
             // On every mouse move, calculate the new width
-            $(window).mousemove(calculateWidthEvent(scope, column, orgX, orgWidth, optional))
+            listener = calculateWidthEvent(scope, column, orgX, orgWidth, optional)
+            $(window).mousemove(listener)
 
             // Stop dragging as soon as the mouse is released
             $(window).one('mouseup', unbindEvent(scope, column, handle))
-
         })
     }
 
@@ -245,7 +246,10 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
         // Event called at end of drag
         return function( /*event*/ ) {
             $(handle).removeClass(scope.options.handleClassActive || 'active');
-            $(window).unbind('mousemove');
+
+            if (listener) {
+                $(window).unbind('mousemove', listener);
+            }
 
             scope.options.onResizeEnded && scope.options.onResizeEnded(column)
 
