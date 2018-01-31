@@ -1,6 +1,8 @@
-/*#########################################*/
-/* Table Resizing */
-/*#########################################*/
+/*
+ * angular-table-resize
+ * https://github.com/tympanix/angular-table-resize
+ * - minimal stylesheet
+ */
 
 table.rz-table th {
     position: relative;
