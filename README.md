@@ -17,18 +17,18 @@ npm install angular-table-resize
 ## Quick Setup
 #### Link style sheets
 ```html
-<link rel="stylesheet" href="/angular-table-resize.min.css">
+<link rel="stylesheet" href="angular-table-resize.css">
 ```
 
 #### Import dependencies
 ```html
-<script src="/jquery/dist/jquery.min.js"></script>
-<script src="/angular/angular.js"></script>
+<script src="jquery.js"></script>
+<script src="angular.js"></script>
 ```
 
 #### Import the module
 ```html
-<script src="/angular-table-resize.min.js"></script>
+<script src="angular-table-resize.js"></script>
 ```
 
 #### Install the module
