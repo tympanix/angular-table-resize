@@ -64,7 +64,20 @@ That wasn't so hard was it now?
   A string which is the query selector for the container of the table. Default is the parent element of the table.
   
 ## Local Storage
-The module automatically saves the current column widths to *localStorage*. This however requires that you supply your `<table/>` an *id* and all of your table headers (`<th/>`) with an *id* as well. Otherwise you should disable `rz-save`. If your are generating your columns dynamically (e.g. using `ng-repeat`) you should instead of using *id* for your table headers (`<th/>`) use the `rz-col` directive.
+The module automatically saves the current column widths to *localStorage*. This however requires that you supply your `<table>` an *id* and all of your table headers (`<th>`) with an *id* as well. Otherwise you should disable `rz-save`. For dynamic tables you should use the `rz-col` directive (see [dynamic tables](#dynamic-tables)).
+
+## Dynamic Tables
+If you are generating your columns dynamically (e.g. using `ng-repeat`) you should instead of using *id* for your table headers (`<th>`) use the `rz-col` directive. Remember that your table must still have an *id* for [local storage](#local-storage) to work.
+
+#### Example:
+```html
+<table rz-table id="myTable">
+  <thead>
+    <th ng-repeat="col in columns" rz-col="col"></th>
+  </thead>
+  ...
+</table>
+```
 
 ## Resizing Modes
 The resize mode can be set to any of the following modes. You may also chose to allow the enduser to chose from the below by binding [`rz-mode`](#rz-mode) to a scope variable. Choose the one that works best for you in practice.
