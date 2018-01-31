@@ -29,6 +29,9 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
         // Set global reference to container
         container = scope.container ? $(scope.container) : $(table).parent();
 
+        // Set options to an empty object if undefined
+        scope.options = attr.rzOptions ? scope.options || {} : {}
+
         // Add css styling/properties to table
         $(table).addClass(scope.options.tableClass || 'resize');
 
@@ -108,9 +111,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
 
         mode = scope.mode;
         saveTableSizes = angular.isDefined(scope.saveTableSizes) ? scope.saveTableSizes : true;
-        profile = scope.profile;
-
-        scope.options = attr.rzOptions ? scope.options || {} : {}
+        profile = scope.profile
 
         // Get the resizer object for the current mode
         var ResizeModel = getResizer(scope, attr);
