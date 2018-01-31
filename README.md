@@ -75,6 +75,19 @@ The resize mode can be set to any of these modes. Choose the one that works best
 | FixedResizer      | First columns is width auto. Subsequent column sizes are never changed after resizing                         |
 | OverflowResizer   | Table may expand out of its container, adding scrollbars. Columns are always the same size after resizing     |
 
+## Utilities
+* #### `update()`
+  Re-initializes the module. Be aware that the module will update itself automatically when you change any of the attributes of the module. You should have a good reason to use this function.
+  
+* #### `reset()`
+  Resets the currently active resizing profile and deletes it from local storage. Column sizes will be reset to default.
+  
+* #### `clearStorage()`
+  Clears all profiles saved in local storage - but does not change/reset the current column widths. You may optionally call `reset()` afterwards if you wish to do so.
+  
+* #### `clearStorageActive()`
+  Clears the currently active profile from local storage - but does not change/reset the current column widths. Use `reset()` instead if you want to do so.
+
 ## Options
 You may supply optional/additional options to the module for your personalization:
 
