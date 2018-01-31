@@ -9,7 +9,7 @@ const cleancss = require('gulp-clean-css');
 
 const jsFiles = [
     "scripts/angular-table-resize.js",
-    "scripts/directives/resizeable-directive.js",
+    "scripts/directives/resizable-directive.js",
     "scripts/directives/resize-col-directive.js",
     "scripts/services/resize-storage-service.js",
     "scripts/services/resizer-factory.js",
