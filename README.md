@@ -64,10 +64,10 @@ That wasn't so hard was it now?
   A string which is the query selector for the container of the table. Default is the parent element of the table.
   
 ## Local Storage
-The module automatically saves the current column widths to *localStorage*. This however requires that you supply your `<table>` an *id* and all of your table headers (`<th>`) with an *id* as well. Otherwise you should disable `rz-save`. For dynamic tables you should use the `rz-col` directive (see [dynamic tables](#dynamic-tables)).
+The module automatically saves the current column widths to *localStorage*. This however requires that you supply your `<table>` an *id* and all of your table headers (`<th>`) with an *id* as well. Otherwise you should set [`rz-save`](#rz-save) to false. For dynamic tables you should use the `rz-col` directive (see [dynamic tables](#dynamic-tables)).
 
 ## Dynamic Tables
-If you are generating your columns dynamically (e.g. using `ng-repeat`) you should instead of using *id* for your table headers (`<th>`) use the `rz-col` directive. Remember that your table must still have an *id* for [local storage](#local-storage) to work.
+If you are generating your columns dynamically (e.g. using `ng-repeat`) you should instead of using an *id* for your table headers (`<th>`) use the `rz-col` directive. Remember that your table must still have an *id* for [local storage](#local-storage) to work.
 
 #### Example:
 ```html
