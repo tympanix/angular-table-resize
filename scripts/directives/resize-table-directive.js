@@ -34,9 +34,6 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
         // Bind utility functions to scope object
         bindUtilityFunctions(table, attr, scope)
 
-        // Watch for mode changes and update all
-        watchModeChange(table, attr, scope)
-
         // Watch for changes in columns
         watchTableChanges(table, attr, scope)
 
@@ -44,11 +41,24 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
         setUpWatchers(table, attr, scope)
     }
 
+    function renderWatch(table, attr, scope) {
+      return function(oldVal, newVal) {
+        if (newVal !== oldVal) {
+          cleanUpAll(table);
+          initialiseAll(table, attr, scope);
+        }
+      }
+    }
+
     function setUpWatchers(table, attr, scope) {
-        scope.$watch('profile', function(newVal, oldVal) {
-            cleanUpAll(table);
-            initialiseAll(table, attr, scope);
-        })
+        scope.$watch('profile', renderWatch(table, attr, scope))
+        scope.$watch('mode', renderWatch(table, attr, scope))
+    }
+
+    function watchTableChanges(table, attr, scope) {
+        scope.$watch(function () {
+          return $(table).find('th').length;
+        }, renderWatch(table, attr, scope));
     }
 
     function bindUtilityFunctions(table, attr, scope) {
@@ -59,24 +69,6 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
                 initialiseAll(table, attr, scope);
             }
         }
-    }
-
-    function watchTableChanges(table, attr, scope) {
-        scope.$watch(function () {
-          return $(table).find('th').length;
-        }, function (/*newColLength*/) {
-            cleanUpAll(table);
-            initialiseAll(table, attr, scope);
-        });
-    }
-
-    function watchModeChange(table, attr, scope) {
-        scope.$watch(function() {
-            return scope.mode;
-        }, function(/*newMode*/) {
-            cleanUpAll(table);
-            initialiseAll(table, attr, scope);
-        });
     }
 
     function cleanUpAll(table) {
@@ -218,7 +210,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
 
     function getResizer(scope, attr) {
         try {
-            var mode = attr.mode ? scope.mode : 'BasicResizer';
+            var mode = attr.rzMode ? scope.mode : 'BasicResizer';
             var Resizer = $injector.get(mode)
             return Resizer;
         } catch (e) {
