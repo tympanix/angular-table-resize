@@ -31,7 +31,7 @@ npm install angular-table-resize
 <script src="/angular-table-resize.min.js"></script>
 ```
 
-### Install the module
+#### Install the module
 Add the module to your application
 ```javascript
 angular.module('myApplication', ['rzTable']);
