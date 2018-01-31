@@ -55,7 +55,7 @@ That wasn't so hard was it now?
   Two-way-binding to an object literal with optional/additional options (see [options](#options))
   
 * #### `rz-model`
-  Two-way-binding to a variable on the controller scope. The variable will be overwritten with an object literal, where you can access utility functions
+  Two-way-binding to a variable on the controller scope. The variable will be overwritten with an object literal, where you can access utility functions (see [utilities](#utilities)).
   
 * #### `rz-profile`
   Two-way-binding to a string which is a unique identifier for the currently active profile. Default is the default profile (the empty string).
