@@ -68,8 +68,13 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
         var model = $parse(attr.rzModel)
         model.assign(scope.$parent, {
             update: function() {
-                cleanUpAll(table);
-                initialiseAll(table, attr, scope);
+                cleanUpAll(table)
+                initialiseAll(table, attr, scope)
+            },
+            reset: function() {
+                resetTable(table)
+                this.clearStorageActive()
+                this.update()
             },
             clearStorage: function() {
                 resizeStorage.clearAll()
