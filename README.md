@@ -79,6 +79,8 @@ If you are generating your columns dynamically (e.g. using `ng-repeat`) you shou
 </table>
 ```
 
+The `rz-col` directive is a two-way-binding to a string, which is the *id* for that column.
+
 ## Resizing Modes
 The resize mode can be set to any of the following modes. You may also chose to allow the enduser to chose from the below by binding [`rz-mode`](#rz-mode) to a scope variable. Choose the one that works best for you in practice.
 
