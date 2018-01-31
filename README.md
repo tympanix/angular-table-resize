@@ -86,7 +86,7 @@ The resize mode can be set to any of the following modes. You may also chose to 
   Clears the currently active profile from local storage - but does not change/reset the current column widths. Use `reset()` instead if you want to do so.
 
 * #### `update()`
-  Re-initializes the module. Be aware that the module will update itself automatically when you change any of the attributes of the module. You should have a good reason to use this function.
+  Re-initializes the module. Be aware that the module will update itself automatically when you change any of the [attributes](#attributes) of the module. You should have a good reason to use this function.
 
 ## Options
 You may supply optional/additional options to the module for your personalization:
