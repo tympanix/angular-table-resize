@@ -64,10 +64,10 @@ That wasn't so hard was it now?
   A string which is the query selector for the container of the table. Default is the parent element of the table.
   
 ## Local Storage
-The module automatically saves the current column width to *localStorage*. This however requires that you supply your **\<table\>** with an *id* and all of your table headers `<th\>` with an *id* as well.
+The module automatically saves the current column widths to *localStorage*. This however requires that you supply your `<table/>` an *id* and all of your table headers (`<th/>`) with an *id* as well. Otherwise you should disable `rz-save`. If your are generating your columns dynamically (e.g. using `ng-repeat`) you should instead of using *id* for your table headers (`<th/>`) use the [`rz-col`](#rz-col) directive.
 
 ## Resizing Modes
-The resize mode can be set to any of these modes. Choose the one that works best for you.
+The resize mode can be set to any of the following modes. You may also chose to allow the enduser to chose from the below by binding [`rz-mode`](#rz-mode) to a scope variable. Choose the one that works best for you in practice.
 
 | Resize Mode       | Description          |
 | :---------------- |:--------------|
