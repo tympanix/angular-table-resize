@@ -116,10 +116,10 @@ You may supply optional/additional options to the module for your personalizatio
   Callback function. Called for every tick in the resizing process.
   
 * #### `tableClass`: *`string`*
-  The class appended to the table for styling purposes. Default is `rz-table`.
+  The class appended to the table for styling purposes. Default is `rz-table` (from [angular-table-resize.css](dist/angular-table-resize.css)).
   
 * #### `handleClass`: *`string`*
-  The class appended to handles for styling purposes. Default is `rz-handle`
+  The class appended to handles for styling purposes. Default is `rz-handle` (from [angular-table-resize.css](dist/angular-table-resize.css)).
 
 * #### `handleClassActive`: *`string`*
-  The class appended to the handle, when a column is being resized. Default is `rz-handle-active`.
+  The class appended to the handle, when a column is being resized. Default is `rz-handle-active` (from [angular-table-resize.css](dist/angular-table-resize.css)).
