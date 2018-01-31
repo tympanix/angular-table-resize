@@ -2,12 +2,12 @@
 /* Table Resizing */
 /*#########################################*/
 
-table.resize th {
+table.rz-table th {
     position: relative;
     min-width: 25px;
 }
 
-table.resize tr th .handle {
+table.rz-table tr th .rz-handle {
     width: 10px;
     height: 100%;
     position: absolute;
@@ -16,6 +16,6 @@ table.resize tr th .handle {
     cursor: ew-resize !important;
 }
 
-table.resize tr th .handle.active {
+table.rz-table tr th .rz-handle.rz-handle-active {
     border-right: 1px dotted #000;
 }

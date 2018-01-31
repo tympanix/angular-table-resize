@@ -33,7 +33,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
         scope.options = attr.rzOptions ? scope.options || {} : {}
 
         // Add css styling/properties to table
-        $(table).addClass(scope.options.tableClass || 'resize');
+        $(table).addClass(scope.options.tableClass || 'rz-table');
 
         // Initialise handlers, bindings and modes
         initialiseAll(table, attr, scope);
@@ -145,7 +145,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
     function initHandle(scope, table, column) {
         // Prepend a new handle div to the column
         var handle = $('<div>', {
-            class: scope.options.handleClass || 'handle'
+            class: scope.options.handleClass || 'rz-handle'
         });
         $(column).prepend(handle);
 
@@ -182,7 +182,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
             event.preventDefault();
 
             // Change css styles for the handle
-            $(handle).addClass(scope.options.handleClassActive || 'active');
+            $(handle).addClass(scope.options.handleClassActive || 'rz-handle-active');
 
             // Get mouse and column origin measurements
             var orgX = event.clientX;
@@ -244,7 +244,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
     function unbindEvent(scope, column, handle) {
         // Event called at end of drag
         return function( /*event*/ ) {
-            $(handle).removeClass(scope.options.handleClassActive || 'active');
+            $(handle).removeClass(scope.options.handleClassActive || 'rz-handle-active');
 
             if (listener) {
                 $(window).unbind('mousemove', listener);
