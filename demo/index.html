@@ -15,7 +15,7 @@
 
         <!-- build:css css/index.css -->
         <link rel="stylesheet" href="./index.css" charset="utf-8">
-        <link rel="stylesheet" href="../dist/table-resize.css">
+        <link rel="stylesheet" href="../dist/angular-table-resize.css">
         <!-- endbuild -->
 
     </head>
@@ -66,33 +66,30 @@
                             </div>
                         </div>
                         <div class="main-content">
-                          <div class="">
-                            <input type="text" ng-model="text" />
-                            <table rz-table rz-mode="tableMode" rz-model="table" rz-profile="profile" class="ui single line unstackable selectable fixed compact torrent table" id="myTable">
-                                <thead>
-                                    <tr>
-                                        <th id="colName" rz-col="'colName'">Name</th>
-                                        <th id="colStatus" rz-col="'colStatus'" class="four wide">
-                                            Status</th>
-                                        <th id="colNotes" rz-col="'colNotes'" ng-if="notes" class="four wide">
-                                            Notes</th>
-                                        <th id="colMore" rz-col="'colMore'" class="two wide">
-                                            More</th>
-                                        <th id="colEvenMore" rz-col="'colEvenMore'" class="one wide">
-                                            Even More</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr ng-repeat="item in items">
-                                        <td>{{item}}</td>
-                                        <td>Approved</td>
-                                        <td ng-if="notes">None</td>
-                                        <td>Even more none</td>
-                                        <td>Black hole</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                          </div>
+                          <table rz-table rz-mode="tableMode" rz-model="table" rz-profile="profile" class="ui single line unstackable selectable fixed compact torrent table" id="myTable">
+                              <thead>
+                                  <tr>
+                                      <th id="colName" rz-col="'colName'">Name</th>
+                                      <th id="colStatus" rz-col="'colStatus'" class="four wide">
+                                          Status</th>
+                                      <th id="colNotes" rz-col="'colNotes'" ng-if="notes" class="four wide">
+                                          Notes</th>
+                                      <th id="colMore" rz-col="'colMore'" class="two wide">
+                                          More</th>
+                                      <th id="colEvenMore" rz-col="'colEvenMore'" class="one wide">
+                                          Even More</th>
+                                  </tr>
+                              </thead>
+                              <tbody>
+                                  <tr ng-repeat="item in items">
+                                      <td>{{item}}</td>
+                                      <td>Approved</td>
+                                      <td ng-if="notes">None</td>
+                                      <td>Even more none</td>
+                                      <td>Black hole</td>
+                                  </tr>
+                              </tbody>
+                          </table>
                         </div>
                     </div>
 
