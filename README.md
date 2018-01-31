@@ -14,46 +14,75 @@ bower install angular-table-resize
 npm install angular-table-resize
 ```
 
-## Setup
+## Quick Setup
 #### Link style sheets
 ```html
-<link rel="stylesheet" href="/angular-table-resize.min.css">
+<link rel="stylesheet" href="angular-table-resize.css">
 ```
 
 #### Import dependencies
 ```html
-<script src="/jquery/dist/jquery.min.js"></script>
-<script src="/angular/angular.js"></script>
+<script src="jquery.js"></script>
+<script src="angular.js"></script>
 ```
 
-#### Import the Angular module
+#### Import the module
 ```html
-<script src="/angular-table-resize.min.js"></script>
+<script src="angular-table-resize.js"></script>
 ```
 
-## Use
-Make sure your app imports the module
+#### Install the module
+Add the module to your application
 ```javascript
-angular.module('myApplication', ['ngTableResize']);
+angular.module('myApplication', ['rzTable']);
 ```
 
-On a HTML table tag put the **resizeable** directive
+On a HTML table tag put the `rz-table` directive
 ```html
-<table resizeable mode="resizeMode" id="myTable">
-    ...
+<table rz-table>...</table>
+```
+
+That wasn't so hard was it now?
+
+## Attributes
+* #### `rz-mode`
+  Changes the resizing mode of the module (see [resizing modes](#resizing-modes)). Two-way-binding to a string, that is the name of the resizer you want to use.
+  
+* #### `rz-save`
+  Two-way-binding to boolean variable. Whether or not to save the column sizes in local storage (see [local storage](#local-storage)). Default is `true`.
+  
+* #### `rz-options`
+  Two-way-binding to an object literal with optional/additional options (see [options](#options))
+  
+* #### `rz-model`
+  Two-way-binding to a variable on the controller scope. The variable will be overwritten with an object literal, where you can access utility functions (see [utilities](#utilities)).
+  
+* #### `rz-profile`
+  Two-way-binding to a string which is a unique identifier for the currently active profile. Default is the default profile (the empty string).
+  
+* #### `rz-container`
+  A string which is the query selector for the container of the table. Default is the parent element of the table.
+  
+## Local Storage
+The module automatically saves the current column widths to *localStorage*. This however requires that you supply your `<table>` an *id* and all of your table headers (`<th>`) with an *id* as well. Otherwise you should set [`rz-save`](#rz-save) to false. For dynamic tables you should use the `rz-col` directive (see [dynamic tables](#dynamic-tables)).
+
+## Dynamic Tables
+If you are generating your columns dynamically (e.g. using `ng-repeat`) you should instead of using an *id* for your table headers (`<th>`) use the `rz-col` directive. Remember that your table must still have an *id* for [local storage](#local-storage) to work.
+
+#### Example:
+```html
+<table rz-table id="myTable">
+  <thead>
+    <th ng-repeat="col in columns" rz-col="col"></th>
+  </thead>
+  ...
 </table>
 ```
-The attribute **mode** references a variable on the controller, specifying the current resizing mode.
-In the example above this variable could be
-```javascript
-$scope.resizeMode = "BasicResizer"
-```
 
-#### Saving column sizes
-The module automatically saves the current column width to *localStorage*. This however requires that you supply your **\<table\>** with an *id* and all of your table headers **\<th\>** with and *id* as well.
+The `rz-col` directive is a two-way-binding to a string, which is the *id* for that column.
 
-#### Resizing Modes
-The resize mode can be set to any of these modes. Choose the one that works best for you.
+## Resizing Modes
+The resize mode can be set to any of the following modes. You may also chose to allow the enduser to chose from the below by binding [`rz-mode`](#rz-mode) to a scope variable. Choose the one that works best for you in practice.
 
 | Resize Mode       | Description          |
 | :---------------- |:--------------|
@@ -61,6 +90,36 @@ The resize mode can be set to any of these modes. Choose the one that works best
 | FixedResizer      | First columns is width auto. Subsequent column sizes are never changed after resizing                         |
 | OverflowResizer   | Table may expand out of its container, adding scrollbars. Columns are always the same size after resizing     |
 
-N.B. You can implement your own resizer model to use with the module. Instructions coming soon.
+## Utilities  
+* #### `reset()`
+  Resets the currently active resizing profile and deletes it from local storage. Column sizes will be reset to default.
+  
+* #### `clearStorage()`
+  Clears all profiles saved in local storage - but does not change/reset the current column widths. You may optionally call `reset()` afterwards if you wish to do so.
+  
+* #### `clearStorageActive()`
+  Clears the currently active profile from local storage - but does not change/reset the current column widths. Use `reset()` instead if you want to do so.
 
+* #### `update()`
+  Re-initializes the module. Be aware that the module will update itself automatically when you change any of the [attributes](#attributes) of the module. You should have a good reason to use this function.
 
+## Options
+You may supply optional/additional options to the module for your personalization:
+
+* #### `onResizeStarted`: *`function(column)`*
+  Callbacks functio. Called when a column has been started resizing
+  
+* #### `onResizeEnded`: *`function(column)`*
+  Callback function. Called when resizing a column has ended
+  
+* #### `onResizeInProgress`: *`function(column, newWidth, diffX)`*
+  Callback function. Called for every tick in the resizing process.
+  
+* #### `tableClass`: *`string`*
+  The class appended to the table for styling purposes. Default is `rz-table`.
+  
+* #### `handleClass`: *`string`*
+  The class appended to handles for styling purposes. Default is `rz-handle`
+
+* #### `handleClassActive`: *`string`*
+  The class appended to the handle, when a column is being resized. Default is `rz-handle-active`.
