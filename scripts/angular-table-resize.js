@@ -1,1 +1,1 @@
-angular.module("ngTableResize", []);
+angular.module("rzTable", []);

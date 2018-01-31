@@ -1,9 +1,9 @@
-angular.module("ngTableResize").directive('resizeCol', [function() {
+angular.module("rzTable").directive('rzCol', [function() {
   // Return this directive as a object literal
   return {
     restrict: 'A',
     link: link,
-    require: '^^resizable',
+    require: '^^rzTable',
     scope: true
   };
 

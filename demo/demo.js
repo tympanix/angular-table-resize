@@ -1,4 +1,4 @@
-var devapp = angular.module("DemoApp", ["ngTableResize"]);
+var devapp = angular.module("DemoApp", ["rzTable"]);
 
 devapp.controller('main-controller', ['$scope', '$timeout', function($scope, $timeout) {
     $scope.hello = "Hello world";

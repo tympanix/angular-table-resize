@@ -1,4 +1,4 @@
-angular.module("ngTableResize").factory("ResizerModel", [function() {
+angular.module("rzTable").factory("ResizerModel", [function() {
 
     function ResizerModel(table, columns, container){
         this.table = table;

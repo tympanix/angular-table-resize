@@ -1,6 +1,6 @@
-angular.module("ngTableResize", []);
+angular.module("rzTable", []);
 
-angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
+angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
 
     var mode;
     var saveTableSizes;
@@ -281,23 +281,23 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         controller: controller,
         controllerAs: 'rzctrl',
         scope: {
-            mode: '=',
-            profile: '=?',
+            mode: '=rzMode',
+            profile: '=?rzProfile',
             // whether to save table sizes; default true
-            saveTableSizes: '=?',
-            bind: '=',
-            container: '@'
+            saveTableSizes: '=?rzSave',
+            bind: '=rzBind',
+            container: '@rzContainer'
         }
     };
 
 }]);
 
-angular.module("ngTableResize").directive('resizeCol', [function() {
+angular.module("rzTable").directive('rzCol', [function() {
   // Return this directive as a object literal
   return {
     restrict: 'A',
     link: link,
-    require: '^^resizable',
+    require: '^^rzTable',
     scope: true
   };
 
@@ -305,7 +305,7 @@ angular.module("ngTableResize").directive('resizeCol', [function() {
     scope.colName = scope.$eval(attr.resizeCol)
   }
 }])
-angular.module("ngTableResize").service('resizeStorage', ['$window', function($window) {
+angular.module("rzTable").service('resizeStorage', ['$window', function($window) {
 
     var prefix = "ngColumnResize";
 
@@ -333,7 +333,7 @@ angular.module("ngTableResize").service('resizeStorage', ['$window', function($w
 
 }]);
 
-angular.module("ngTableResize").factory("ResizerModel", [function() {
+angular.module("rzTable").factory("ResizerModel", [function() {
 
     function ResizerModel(table, columns, container){
         this.table = table;
@@ -404,7 +404,7 @@ angular.module("ngTableResize").factory("ResizerModel", [function() {
     return ResizerModel;
 }]);
 
-angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", function(ResizerModel) {
+angular.module("rzTable").factory("BasicResizer", ["ResizerModel", function(ResizerModel) {
 
     function BasicResizer(table, columns, container) {
         // Call super constructor
@@ -484,7 +484,7 @@ angular.module("ngTableResize").factory("BasicResizer", ["ResizerModel", functio
 
 }]);
 
-angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", function(ResizerModel) {
+angular.module("rzTable").factory("FixedResizer", ["ResizerModel", function(ResizerModel) {
 
     function FixedResizer(table, columns, container) {
         // Call super constructor
@@ -562,7 +562,7 @@ angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", functio
 
 }]);
 
-angular.module("ngTableResize").factory("OverflowResizer", ["ResizerModel", function(ResizerModel) {
+angular.module("rzTable").factory("OverflowResizer", ["ResizerModel", function(ResizerModel) {
 
     function OverflowResizer(table, columns, container) {
         // Call super constructor

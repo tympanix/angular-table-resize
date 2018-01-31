@@ -1,4 +1,4 @@
-angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
+angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
 
     var mode;
     var saveTableSizes;
@@ -279,12 +279,12 @@ angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injec
         controller: controller,
         controllerAs: 'rzctrl',
         scope: {
-            mode: '=',
-            profile: '=?',
+            mode: '=rzMode',
+            profile: '=?rzProfile',
             // whether to save table sizes; default true
-            saveTableSizes: '=?',
-            bind: '=',
-            container: '@'
+            saveTableSizes: '=?rzSave',
+            bind: '=rzBind',
+            container: '@rzContainer'
         }
     };
 

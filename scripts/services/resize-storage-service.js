@@ -1,4 +1,4 @@
-angular.module("ngTableResize").service('resizeStorage', ['$window', function($window) {
+angular.module("rzTable").service('resizeStorage', ['$window', function($window) {
 
     var prefix = "ngColumnResize";
 

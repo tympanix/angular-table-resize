@@ -1,4 +1,4 @@
-angular.module("ngTableResize").factory("FixedResizer", ["ResizerModel", function(ResizerModel) {
+angular.module("rzTable").factory("FixedResizer", ["ResizerModel", function(ResizerModel) {
 
     function FixedResizer(table, columns, container) {
         // Call super constructor
