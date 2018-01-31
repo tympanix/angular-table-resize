@@ -9,6 +9,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
     var columns = null;
     var ctrlColumns = null;
     var handleColumns = null;
+    var handles = []
     var table = null;
     var container = null;
     var resizer = null;
@@ -30,7 +31,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
         container = scope.container ? $(scope.container) : $(table).parent();
 
         // Add css styling/properties to table
-        $(table).addClass('resize');
+        $(table).addClass(scope.options.tableClass || 'resize');
 
         // Initialise handlers, bindings and modes
         initialiseAll(table, attr, scope);
@@ -98,7 +99,8 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
     }
 
     function deleteHandles(table) {
-        $(table).find('th').find('.handle').remove();
+        handles.map(function(h) { h.remove() })
+        handles = []
     }
 
     function initialiseAll(table, attr, scope) {
@@ -143,12 +145,12 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
     function initHandle(scope, table, column) {
         // Prepend a new handle div to the column
         var handle = $('<div>', {
-            class: 'handle'
+            class: scope.options.handleClass || 'handle'
         });
         $(column).prepend(handle);
 
-        // Make handle as tall as the table
-        //$(handle).height($(table).height())
+        // Add handles to handles for later removal
+        handles.push(handle)
 
         // Use the middleware to decide which columns this handle controls
         var controlledColumn = resizer.handleMiddleware(handle, column)
@@ -180,10 +182,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
             event.preventDefault();
 
             // Change css styles for the handle
-            $(handle).addClass('active');
-
-            // Show the resize cursor globally
-            $('body').addClass('table-resize');
+            $(handle).addClass(scope.options.handleClassActive || 'active');
 
             // Get mouse and column origin measurements
             var orgX = event.clientX;
@@ -245,9 +244,8 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
     function unbindEvent(scope, column, handle) {
         // Event called at end of drag
         return function( /*event*/ ) {
-            $(handle).removeClass('active');
+            $(handle).removeClass(scope.options.handleClassActive || 'active');
             $(window).unbind('mousemove');
-            $('body').removeClass('table-resize');
 
             scope.options.onResizeEnded && scope.options.onResizeEnded(column)
 
