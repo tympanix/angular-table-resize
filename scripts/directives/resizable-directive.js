@@ -1,4 +1,4 @@
-angular.module("ngTableResize").directive('resizeable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
+angular.module("ngTableResize").directive('resizable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
 
     var mode;
     var saveTableSizes;
