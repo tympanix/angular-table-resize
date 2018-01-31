@@ -3,7 +3,7 @@ angular.module("ngTableResize").directive('resizeCol', [function() {
   return {
     restrict: 'A',
     link: link,
-    require: '^^resizeable',
+    require: '^^resizable',
     scope: true
   };
 
