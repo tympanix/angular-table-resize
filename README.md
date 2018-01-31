@@ -91,21 +91,21 @@ The resize mode can be set to any of the following modes. You may also chose to 
 ## Options
 You may supply optional/additional options to the module for your personalization:
 
-* #### `onResizeStarted`: `function(column)`
+* #### `onResizeStarted`: *`function(column)`*
   Callbacks functio. Called when a column has been started resizing
   
-* #### `onResizeEnded`: `function(column)`
+* #### `onResizeEnded`: *`function(column)`*
   Callback function. Called when resizing a column has ended
   
-* #### `onResizeInProgress`: `function(column, newWidth, diffX)`
+* #### `onResizeInProgress`: *`function(column, newWidth, diffX)`*
   Callback function. Called for every tick in the resizing process.
   
-* #### `handleClassActive`: `string`
+* #### `handleClassActive`: *`string`*
   The class appended to the handle, when a column is being resized. Default is `rz-handle-active`.
   
-* #### `tableClass`: `string`
+* #### `tableClass`: *`string`*
   The class appended to the table for styling purposes. Default is `rz-table`.
   
-* #### `handleClass`: `string`
+* #### `handleClass`: *`string`*
   The class appended to handles for styling purposes. Default is `rz-handle`
 
