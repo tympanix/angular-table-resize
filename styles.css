@@ -78,3 +78,7 @@ table th, table td {
   text-overflow: ellipsis;
   padding: .75em;
 }
+
+.rz-handle {
+  width: 35px !important;
+}
