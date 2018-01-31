@@ -1,12 +1,80 @@
-.hero.segment {
-    min-height: 225px;
-    margin-bottom: 50px ! important;
+.body {
+  overflow-x: hidden;
 }
 
-.hero.container {
-    margin-top: 50px;
+* {
+  box-sizing: border-box;
 }
 
-.content {
-    padding-bottom: 50px;
+body {
+  font-family: 'Nunito', sans-serif;
+  overflow-y: scroll;
+  padding: 0;
+  margin: 0;
+}
+
+header {
+  font-size: 2em;
+  font-family: 'Pacifico', cursive;
+  text-align: center;
+  padding: .5em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  margin: .2em;
+}
+
+main {
+  width: 65vw;
+  margin: auto;
+}
+
+.subtitle {
+  text-decoration: underline;
+  margin-top: -1em;
+}
+
+ul.menu {
+  padding: 0;
+  margin: 1em -.5em;
+  display: flex;
+  list-style: none;
+}
+
+ul.menu li {
+  flex: 1 1 100%;
+  margin: .5em;
+  display: inline-block;
+}
+
+button {
+  font-family: 'Nunito', sans-serif;
+  outline: 0;
+  cursor: pointer;
+  border: none;
+  padding: 1em;
+  border-radius: .2em;
+  width: 100%;
+}
+
+button:active {
+  transform: scale(1.01);
+  box-shadow: 0 .2em .2em .1em rgba(0,0,0,.05);
+}
+
+table {
+  border-collapse: collapse;
+}
+
+table th {
+  min-width: 10px;
+  background-color: #f8f8f8;
+}
+
+table th, table td {
+  text-align: left;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: .75em;
 }

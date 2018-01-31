@@ -1,29 +1,11 @@
-var app = angular.module('resizeDemo', ['ngTableResize'])
+var app = angular.module('resizeDemo', ['rzTable'])
 
 app.controller('demoController', ['$scope', function($scope) {
 
-    var i = 0;
-
     $scope.resizeMode = "FixedResizer"
 
-    $scope.items = ["One", "Tow", "Three", "Four"];
+    $scope.table = undefined
 
-    $scope.addItem = function() {
-        $scope.items.push('Item ' + i++);
-    }
-
-    $scope.removeItem = function() {
-        $scope.items.pop();
-    }
-
-    $scope.setMode = function(mode) {
-        $scope.resizeMode = mode;
-    }
-
-    $scope.button = function(mode) {
-        if ($scope.resizeMode === mode) {
-            return 'disabled'
-        }
-    }
+    $scope.items = ['Item 1', 'Item 2', 'Item 3', 'Item 4', 'Item 5']
 
 }]);
