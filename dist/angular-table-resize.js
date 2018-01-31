@@ -1,6 +1,6 @@
 angular.module("rzTable", []);
 
-angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', function(resizeStorage, $injector) {
+angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$parse', function(resizeStorage, $injector, $parse) {
 
     var mode;
     var saveTableSizes;
@@ -16,7 +16,9 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
 
     var cache = null;
 
-    function controller() {
+    RzController.$inject = ['$scope', '$attrs', '$element'];
+
+    function RzController($scope) {
 
     }
 
@@ -64,13 +66,20 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
     }
 
     function bindUtilityFunctions(table, attr, scope) {
-        if (scope.bind === undefined) return;
-        scope.bind = {
+        if (!attr.rzModel) return;
+        var model = $parse(attr.rzModel)
+        model.assign(scope.$parent, {
             update: function() {
                 cleanUpAll(table);
                 initialiseAll(table, attr, scope);
+            },
+            clearStorage: function() {
+                resizeStorage.clearAll()
+            },
+            clearStorageActive: function() {
+                resizeStorage.clearCurrent(table, mode, profile)
             }
-        }
+        })
     }
 
     function cleanUpAll(table) {
@@ -94,6 +103,8 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
         mode = scope.mode;
         saveTableSizes = angular.isDefined(scope.saveTableSizes) ? scope.saveTableSizes : true;
         profile = scope.profile;
+
+        scope.options = attr.rzOptions ? scope.options || {} : {}
 
         // Get the resizer object for the current mode
         var ResizeModel = getResizer(scope, attr);
@@ -119,12 +130,12 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
 
         // Initialise all handlers for every column
         handleColumns.each(function(index, column) {
-            initHandle(table, column);
+            initHandle(scope, table, column);
         })
 
     }
 
-    function initHandle(table, column) {
+    function initHandle(scope, table, column) {
         // Prepend a new handle div to the column
         var handle = $('<div>', {
             class: 'handle'
@@ -138,10 +149,10 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
         var controlledColumn = resizer.handleMiddleware(handle, column)
 
         // Bind mousedown, mousemove & mouseup events
-        bindEventToHandle(table, handle, controlledColumn);
+        bindEventToHandle(scope, table, handle, controlledColumn);
     }
 
-    function bindEventToHandle(table, handle, column) {
+    function bindEventToHandle(scope, table, handle, column) {
 
         // This event starts the dragging
         $(handle).mousedown(function(event) {
@@ -150,6 +161,8 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
                 resizer.onTableReady();
                 isFirstDrag = false;
             }
+
+            scope.options.onResizeStarted && scope.options.onResizeStarted(column)
 
             var optional = {}
             if (resizer.intervene) {
@@ -172,15 +185,15 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
             var orgWidth = $(column).width();
 
             // On every mouse move, calculate the new width
-            $(window).mousemove(calculateWidthEvent(column, orgX, orgWidth, optional))
+            $(window).mousemove(calculateWidthEvent(scope, column, orgX, orgWidth, optional))
 
             // Stop dragging as soon as the mouse is released
-            $(window).one('mouseup', unbindEvent(handle))
+            $(window).one('mouseup', unbindEvent(scope, column, handle))
 
         })
     }
 
-    function calculateWidthEvent(column, orgX, orgWidth, optional) {
+    function calculateWidthEvent(scope, column, orgX, orgWidth, optional) {
         return function(event) {
             // Get current mouse position
             var newX = event.clientX;
@@ -199,6 +212,8 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
                 if (resizer.intervene.restrict(optWidth, diffX)) return;
                 $(optional.column).width(optWidth)
             }
+
+            scope.options.onResizeInProgress && scope.options.onResizeInProgress(column, newWidth, diffX)
 
             // Set size
             $(column).width(newWidth);
@@ -222,12 +237,14 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
     }
 
 
-    function unbindEvent(handle) {
+    function unbindEvent(scope, column, handle) {
         // Event called at end of drag
         return function( /*event*/ ) {
             $(handle).removeClass('active');
             $(window).unbind('mousemove');
             $('body').removeClass('table-resize');
+
+            scope.options.onResizeEnded && scope.options.onResizeEnded(column)
 
             resizer.onEndDrag();
 
@@ -270,14 +287,14 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', fu
     return {
         restrict: 'A',
         link: link,
-        controller: controller,
-        controllerAs: 'rzctrl',
+        controller: RzController,
         scope: {
             mode: '=rzMode',
             profile: '=?rzProfile',
             // whether to save table sizes; default true
             saveTableSizes: '=?rzSave',
-            bind: '=rzBind',
+            options: '=?rzOptions',
+            model: '=rzModel',
             container: '@rzContainer'
         }
     };
@@ -313,6 +330,24 @@ angular.module("rzTable").service('resizeStorage', ['$window', function($window)
         if (!key) return;
         var string = JSON.stringify(sizes);
         $window.localStorage.setItem(key, string)
+    }
+
+    this.clearAll = function() {
+        var keys = []
+        for (var i = 0; i < $window.localStorage.length; ++i) {
+            var key = localStorage.key(i)
+            if (key && key.startsWith(prefix)) {
+                keys.push(key)
+            }
+        }
+        keys.map(function(k) { $window.localStorage.removeItem(k) })
+    }
+
+    this.clearCurrent = function(table, mode, profile) {
+        var key = getStorageKey(table, mode, profile);
+        if (key) {
+            $window.localStorage.removeItem(key)
+        }
     }
 
     function getStorageKey(table, mode, profile) {

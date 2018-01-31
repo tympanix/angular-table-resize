@@ -15,6 +15,24 @@ angular.module("rzTable").service('resizeStorage', ['$window', function($window)
         $window.localStorage.setItem(key, string)
     }
 
+    this.clearAll = function() {
+        var keys = []
+        for (var i = 0; i < $window.localStorage.length; ++i) {
+            var key = localStorage.key(i)
+            if (key && key.startsWith(prefix)) {
+                keys.push(key)
+            }
+        }
+        keys.map(function(k) { $window.localStorage.removeItem(k) })
+    }
+
+    this.clearCurrent = function(table, mode, profile) {
+        var key = getStorageKey(table, mode, profile);
+        if (key) {
+            $window.localStorage.removeItem(key)
+        }
+    }
+
     function getStorageKey(table, mode, profile) {
         var id = table.attr('id');
         if (!id) {

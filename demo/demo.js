@@ -5,9 +5,25 @@ devapp.controller('main-controller', ['$scope', '$timeout', function($scope, $ti
 
     $scope.tableMode = "FixedResizer";
 
+    $scope.table = undefined
+
     $scope.notes = true;
 
+    $scope.text = "hej"
+
     $scope.profile = 'one'
+
+    $scope.options = {
+      onResizeStarted: function() {
+        console.log("Started")
+      },
+      onResizeEnded: function() {
+        console.log("Ended")
+      },
+      onResizeInProgress: function() {
+        console.log("In progress")
+      }
+    }
 
     var i = 1;
 
