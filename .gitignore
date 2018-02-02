@@ -3,3 +3,7 @@ node_modules
 
 # Ignore bower components
 bower_components
+
+
+# Ignore package lock
+package-lock.json
