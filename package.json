@@ -1,0 +1,24 @@
+{
+  "name": "angular-table-resize-demo",
+  "version": "2.0.0",
+  "description": "",
+  "main": "index.html",
+  "dependencies": {},
+  "devDependencies": {
+    "browser-sync": "^2.23.6"
+  },
+  "scripts": {
+    "test": "mocha",
+    "start": "browser-sync start -s -w -f ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tympanix/angular-table-resize.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/tympanix/angular-table-resize/issues"
+  },
+  "homepage": "https://github.com/tympanix/angular-table-resize#readme"
+}
