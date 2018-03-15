@@ -45,22 +45,22 @@ On a HTML table tag put the `rz-table` directive
 That wasn't so hard was it now?
 
 ## Attributes
-* #### `rz-mode`
+* **`rz-mode`**
   Changes the resizing mode of the module (see [resizing modes](#resizing-modes)). Two-way-binding to a string, that is the name of the resizer you want to use.
   
-* #### `rz-save`
+* **`rz-save`**
   Two-way-binding to boolean variable. Whether or not to save the column sizes in local storage (see [local storage](#local-storage)). Default is `true`.
   
-* #### `rz-options`
+* **`rz-options`**
   Two-way-binding to an object literal with optional/additional options (see [options](#options))
   
-* #### `rz-model`
+* **`rz-model`**
   Two-way-binding to a variable on the controller scope. The variable will be overwritten with an object literal, where you can access utility functions (see [utilities](#utilities)).
   
-* #### `rz-profile`
+* **`rz-profile`**
   Two-way-binding to a string which is a unique identifier for the currently active profile. Default is the default profile (the empty string).
   
-* #### `rz-container`
+* **`rz-container`**
   A string which is the query selector for the container of the table. Default is the parent element of the table.
   
 ## Local Storage
@@ -98,35 +98,35 @@ If you want to use your own stylesheets in favor of the minimalistic [angular-ta
 ```
 
 ## Utilities  
-* #### `reset()`
+* **`reset()`**
   Resets the currently active resizing profile and deletes it from local storage. Column sizes will be reset to default.
   
-* #### `clearStorage()`
+* **`clearStorage()`**
   Clears all profiles saved in local storage - but does not change/reset the current column widths. You may optionally call `reset()` afterwards if you wish to do so.
   
-* #### `clearStorageActive()`
+* **`clearStorageActive()`**
   Clears the currently active profile from local storage - but does not change/reset the current column widths. Use `reset()` instead if you want to do so.
 
-* #### `update()`
+* **`update()`**
   Re-initializes the module. Be aware that the module will update itself automatically when you change any of the [attributes](#attributes) of the module. You should have a good reason to use this function.
 
 ## Options
 You may supply optional/additional options to the module for your personalization:
 
-* #### `onResizeStarted`: *`function(column)`*
+* **`onResizeStarted`: *`function(column)`***
   Callbacks functio. Called when a column has been started resizing
   
-* #### `onResizeEnded`: *`function(column)`*
+* **`onResizeEnded`: *`function(column)`***
   Callback function. Called when resizing a column has ended
   
-* #### `onResizeInProgress`: *`function(column, newWidth, diffX)`*
+* **`onResizeInProgress`: *`function(column, newWidth, diffX)`***
   Callback function. Called for every tick in the resizing process.
   
-* #### `tableClass`: *`string`*
+* **`tableClass`: *`string`***
   The class appended to the table for styling purposes. Default is `rz-table` (from [angular-table-resize.css](dist/angular-table-resize.css)).
   
-* #### `handleClass`: *`string`*
+* **`handleClass`: *`string`***
   The class appended to handles for styling purposes. Default is `rz-handle` (from [angular-table-resize.css](dist/angular-table-resize.css)).
 
-* #### `handleClassActive`: *`string`*
+* **`handleClassActive`: *`string`***
   The class appended to the handle, when a column is being resized. Default is `rz-handle-active` (from [angular-table-resize.css](dist/angular-table-resize.css)).
