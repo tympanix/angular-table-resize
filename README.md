@@ -91,7 +91,7 @@ The resize mode can be set to any of the following modes. You may also chose to 
 | OverflowResizer   | Table may expand out of its container, adding scrollbars. Columns are always the same size after resizing     |
 
 ## Custom Stylesheets
-If you want to use your own stylesheets in favor of the minimalistic [angular-table-resize.css](dist/angular-table-resize.css) provided by the module you may do so. You can style the existing classes, or you can overwrite the default classnames (see [`tableClass`](#tableclass-string), [`handleClass`](#handleclass-string) and [`handleClassActive`](#handleclassactive-string)). You must keep in mind that the module works best with tables which has the following styles set for the `<table>` element:
+If you want to use your own stylesheets in favor of the minimalistic [angular-table-resize.css](dist/angular-table-resize.css) provided by the module you may do so. You can style the existing classes, or you can overwrite the default classnames (see `tableClass`, `handleClass` and `handleClassActive`). You must keep in mind that the module works best with tables which has the following styles set for the `<table>` element:
 ```css
  table-layout: fixed;
  border-collapse: collapse;
