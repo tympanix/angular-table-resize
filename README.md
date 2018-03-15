@@ -51,6 +51,9 @@ That wasn't so hard was it now?
 * **`rz-save`**
   Two-way-binding to boolean variable. Whether or not to save the column sizes in local storage (see [local storage](#local-storage)). Default is `true`.
   
+* **`rz-busy`**
+  Two-way-binding to boolean variable. As long as the value is true, the table will not be initialised. Can be used to postpone initialisation until other components has been initialised. Should only be used in special case scenarios.
+  
 * **`rz-options`**
   Two-way-binding to an object literal with optional/additional options (see [options](#options))
   
