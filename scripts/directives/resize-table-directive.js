@@ -50,6 +50,8 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
 
     function renderWatch(table, attr, scope) {
       return function(oldVal, newVal) {
+        if (scope.busy === true) return
+        if (newVal === undefined) return
         if (newVal !== oldVal) {
           cleanUpAll(table);
           initialiseAll(table, attr, scope);
@@ -60,6 +62,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
     function setUpWatchers(table, attr, scope) {
         scope.$watch('profile', renderWatch(table, attr, scope))
         scope.$watch('mode', renderWatch(table, attr, scope))
+        scope.$watch('busy', renderWatch(table, attr, scope))
     }
 
     function watchTableChanges(table, attr, scope) {
@@ -106,6 +109,9 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
     }
 
     function initialiseAll(table, attr, scope) {
+        // If busy, postpone initialization
+        if (scope.busy) return
+
         // Get all column headers
         columns = $(table).find('th');
 
@@ -295,12 +301,19 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
         link: link,
         controller: RzController,
         scope: {
+            // rzMode will determine the rezising behavior
             mode: '=rzMode',
+            // rzProfile loads a profile from local storage
             profile: '=?rzProfile',
-            // whether to save table sizes; default true
+            // rzBusy will postpone initialisation
+            busy: '=?rzBusy',
+            // rzSave saves columns to local storage
             saveTableSizes: '=?rzSave',
+            // rzOptions supplies addition options
             options: '=?rzOptions',
+            // rzModel binds utility function to controller
             model: '=rzModel',
+            // rzContainer is a query selector for the container DOM
             container: '@rzContainer'
         }
     };
