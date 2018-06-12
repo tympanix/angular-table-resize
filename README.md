@@ -117,7 +117,7 @@ If you want to use your own stylesheets in favor of the minimalistic [angular-ta
 You may supply optional/additional options to the module for your personalization:
 
 * **`onResizeStarted`: *`function(column)`***
-  Callbacks functio. Called when a column has been started resizing
+  Callback function. Called when a column has been started resizing
   
 * **`onResizeEnded`: *`function(column)`***
   Callback function. Called when resizing a column has ended
