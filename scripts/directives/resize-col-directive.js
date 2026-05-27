@@ -9,6 +9,10 @@ angular.module("rzTable").directive('rzCol', [function() {
   };
 
   function link(scope, element, attr) {
-    scope.rzCol = scope.$eval(attr.rzCol)
+    scope.$watch(function() {
+      return scope.$eval(attr.rzCol)
+    }, function(rzCol) {
+      scope.rzCol = rzCol
+    })
   }
 }])
