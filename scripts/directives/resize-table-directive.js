@@ -2,102 +2,98 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
 
     RzController.$inject = ['$scope', '$attrs', '$element'];
 
-    function RzController($scope) {
+    function RzController($scope, $attrs, $element) {
+        this.scope = $scope;
+        this.attr = $attrs;
+        this.table = $element;
+        this.mode = null;
+        this.saveTableSizes = true;
+        this.profile = null;
+        this.columns = null;
+        this.ctrlColumns = null;
+        this.handleColumns = null;
+        this.listener = null;
+        this.handles = [];
+        this.container = $scope.container ? $($scope.container) : $(this.table).parent();
+        this.resizer = null;
+        this.isFirstDrag = true;
+        this.cache = null;
+        this.registeredColumns = [];
 
+        this.scope.options = $attrs.rzOptions ? $scope.options || {} : {}
+        $(this.table).addClass(this.scope.options.tableClass || 'rz-table');
+
+        this.renderWatchListener = this.renderWatch();
+        this.initialiseAll();
+        this.bindUtilityFunctions();
+        this.watchTableChanges();
+        this.setUpWatchers();
+
+        this.scope.$on('$destroy', function() {
+            this.cleanUpAll();
+        }.bind(this))
     }
 
-    function createState() {
-        return {
-            mode: null,
-            saveTableSizes: true,
-            profile: null,
-            columns: null,
-            ctrlColumns: null,
-            handleColumns: null,
-            listener: null,
-            handles: [],
-            table: null,
-            container: null,
-            resizer: null,
-            isFirstDrag: true,
-            cache: null
+    RzController.prototype.registerColumn = function(element, scope) {
+        var column = {
+            element: element,
+            scope: scope,
+            id: scope.rzCol
         }
+        this.registeredColumns.push(column)
+        return column
     }
 
-    function link(scope, element, attr) {
-        var state = createState();
+    RzController.prototype.updateRegisteredColumn = function(column, rzCol) {
+        column.id = rzCol
+    }
 
-        // Set local reference to table
-        state.table = element;
-
-        // Set local reference to container
-        state.container = scope.container ? $(scope.container) : $(state.table).parent();
-
-        // Set options to an empty object if undefined
-        scope.options = attr.rzOptions ? scope.options || {} : {}
-
-        // Add css styling/properties to table
-        $(state.table).addClass(scope.options.tableClass || 'rz-table');
-
-        // Initialise handlers, bindings and modes
-        initialiseAll(state, attr, scope);
-
-        // Bind utility functions to scope object
-        bindUtilityFunctions(state, attr, scope)
-
-        // Watch for changes in columns
-        watchTableChanges(state, attr, scope)
-
-        // Watch for scope bindings
-        setUpWatchers(state, attr, scope)
-
-        scope.$on('$destroy', function() {
-            cleanUpAll(state);
+    RzController.prototype.unregisterColumn = function(column) {
+        this.registeredColumns = this.registeredColumns.filter(function(entry) {
+            return entry !== column
         })
     }
 
-    function renderWatch(state, attr, scope) {
-      return function(newVal, oldVal) {
-        if (scope.busy === true) return
-        if (newVal === undefined) return
-        if (newVal !== oldVal) {
-          cleanUpAll(state);
-          initialiseAll(state, attr, scope);
-        }
-      }
+    RzController.prototype.renderWatch = function() {
+        return function(newVal, oldVal) {
+            if (this.scope.busy === true) return
+            if (newVal === undefined) return
+            if (newVal !== oldVal) {
+                this.cleanUpAll();
+                this.initialiseAll();
+            }
+        }.bind(this)
     }
 
-    function setUpWatchers(state, attr, scope) {
-        scope.$watch('profile', renderWatch(state, attr, scope))
-        scope.$watch('mode', renderWatch(state, attr, scope))
-        scope.$watch('busy', renderWatch(state, attr, scope))
+    RzController.prototype.setUpWatchers = function() {
+        this.scope.$watch('profile', this.renderWatchListener)
+        this.scope.$watch('mode', this.renderWatchListener)
+        this.scope.$watch('busy', this.renderWatchListener)
     }
 
-    function watchTableChanges(state, attr, scope) {
-        scope.$watch(function () {
-          return getColumnSignature(state);
-        }, renderWatch(state, attr, scope));
+    RzController.prototype.watchTableChanges = function() {
+        this.scope.$watch(function () {
+            return this.getRegisteredColumnSignature();
+        }.bind(this), this.renderWatchListener);
     }
 
-    function getColumnSignature(state) {
-        return $(state.table).find('th[rz-col]').map(function(index, column) {
-            var colScope = angular.element(column).scope()
-            return colScope && angular.isDefined(colScope.rzCol)
-                ? String(colScope.rzCol)
-                : ($(column).attr('id') || '')
-        }).get().join('|')
+    RzController.prototype.getRegisteredColumnSignature = function() {
+        return this.registeredColumns.map(function(column) {
+            return angular.isDefined(column.id) ? String(column.id) : ''
+        }).join('|')
     }
 
-    function bindUtilityFunctions(state, attr, scope) {
-        if (!attr.rzModel) return;
-        var model = $parse(attr.rzModel)
-        model.assign(scope.$parent, {
+    RzController.prototype.bindUtilityFunctions = function() {
+        var ctrl = this;
+        if (!this.attr.rzModel) return;
+        var model = $parse(this.attr.rzModel)
+        model.assign(this.scope.$parent, {
             update: function() {
-                cleanUpAll(state)
-                initialiseAll(state, attr, scope)
+                ctrl.cleanUpAll()
+                ctrl.initialiseAll()
             },
             reset: function() {
-                resetTable(state.table)
+                ctrl.resetTable()
                 this.clearStorageActive()
                 this.update()
             },
@@ -105,237 +101,188 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
                 resizeStorage.clearAll()
             },
             clearStorageActive: function() {
-                resizeStorage.clearCurrent(state.table, state.mode, state.profile)
+                resizeStorage.clearCurrent(ctrl.table, ctrl.mode, ctrl.profile)
             }
         })
     }
 
-    function cleanUpAll(state) {
-        state.isFirstDrag = true;
-        if (state.listener) {
-            $(window).unbind('mousemove', state.listener);
-            state.listener = null;
+    RzController.prototype.cleanUpAll = function() {
+        this.isFirstDrag = true;
+        if (this.listener) {
+            $(window).unbind('mousemove', this.listener);
+            this.listener = null;
         }
-        deleteHandles(state);
+        this.deleteHandles();
     }
 
-    function resetTable(table) {
-        $(table).outerWidth('100%');
-        $(table).find('th').width('auto');
+    RzController.prototype.resetTable = function() {
+        $(this.table).outerWidth('100%');
+        $(this.table).find('th').width('auto');
     }
 
-    function deleteHandles(state) {
-        state.handles.map(function(h) { h.remove() })
-        state.handles = []
+    RzController.prototype.deleteHandles = function() {
+        this.handles.map(function(handle) { handle.remove() })
+        this.handles = []
     }
 
-    function initialiseAll(state, attr, scope) {
-        // If busy, postpone initialization
-        if (scope.busy) return
+    RzController.prototype.initialiseAll = function() {
+        if (this.scope.busy) return
 
-        // Get all column headers
-        state.columns = $(state.table).find('th');
+        this.columns = $(this.table).find('th');
+        this.mode = this.scope.mode;
+        this.saveTableSizes = angular.isDefined(this.scope.saveTableSizes) ? this.scope.saveTableSizes : true;
+        this.profile = this.scope.profile
 
-        state.mode = scope.mode;
-        state.saveTableSizes = angular.isDefined(scope.saveTableSizes) ? scope.saveTableSizes : true;
-        state.profile = scope.profile
-
-        // Get the resizer object for the current mode
-        var ResizeModel = getResizer(scope, attr);
+        var ResizeModel = this.getResizer();
         if (!ResizeModel) return;
-        state.resizer = new ResizeModel(state.table, state.columns, state.container);
+        this.resizer = new ResizeModel(this.table, this.columns, this.container);
 
-        if (state.saveTableSizes) {
-            // Load column sizes from saved storage
-            state.cache = resizeStorage.loadTableSizes(state.table, scope.mode, scope.profile)
+        if (this.saveTableSizes) {
+            this.cache = resizeStorage.loadTableSizes(this.table, this.scope.mode, this.scope.profile)
         }
 
-        // Decide which columns should have a handler attached
-        state.handleColumns = state.resizer.handles(state.columns);
+        this.handleColumns = this.resizer.handles(this.columns);
+        this.ctrlColumns = this.resizer.ctrlColumns;
+        this.resizer.setup();
+        this.setColumnSizes(this.cache);
 
-        // Decide which columns are controlled and resized
-        state.ctrlColumns = state.resizer.ctrlColumns;
-
-        // Execute setup function for the given resizer mode
-        state.resizer.setup();
-
-        // Set column sizes from cache
-        setColumnSizes(state, state.cache);
-
-        // Initialise all handlers for every column
-        state.handleColumns.each(function(index, column) {
-            initHandle(state, scope, column);
-        })
-
+        this.handleColumns.each(function(index, column) {
+            this.initHandle(column);
+        }.bind(this))
     }
 
-    function initHandle(state, scope, column) {
-        // Prepend a new handle div to the column
+    RzController.prototype.initHandle = function(column) {
         var handle = $('<div>', {
-            class: scope.options.handleClass || 'rz-handle'
+            class: this.scope.options.handleClass || 'rz-handle'
         });
         $(column).prepend(handle);
+        this.handles.push(handle)
 
-        // Add handles to handles for later removal
-        state.handles.push(handle)
-
-        // Use the middleware to decide which columns this handle controls
-        var controlledColumn = state.resizer.handleMiddleware(handle, column)
-
-        // Bind mousedown, mousemove & mouseup events
-        bindEventToHandle(state, scope, handle, controlledColumn);
+        var controlledColumn = this.resizer.handleMiddleware(handle, column)
+        this.bindEventToHandle(handle, controlledColumn);
     }
 
-    function bindEventToHandle(state, scope, handle, column) {
-
-        // This event starts the dragging
+    RzController.prototype.bindEventToHandle = function(handle, column) {
         $(handle).mousedown(function(event) {
-            if (state.isFirstDrag) {
-                state.resizer.onFirstDrag(column, handle);
-                state.resizer.onTableReady();
-                state.isFirstDrag = false;
+            if (this.isFirstDrag) {
+                this.resizer.onFirstDrag(column, handle);
+                this.resizer.onTableReady();
+                this.isFirstDrag = false;
             }
 
-            scope.options.onResizeStarted && scope.options.onResizeStarted(column)
+            this.scope.options.onResizeStarted && this.scope.options.onResizeStarted(column)
 
             var optional = {}
-            if (state.resizer.intervene) {
-                optional = state.resizer.intervene.selector(column);
+            if (this.resizer.intervene) {
+                optional = this.resizer.intervene.selector(column);
                 optional.column = optional;
                 optional.orgWidth = $(optional).width();
             }
 
-            // Prevent text-selection, object dragging ect.
             event.preventDefault();
+            $(handle).addClass(this.scope.options.handleClassActive || 'rz-handle-active');
 
-            // Change css styles for the handle
-            $(handle).addClass(scope.options.handleClassActive || 'rz-handle-active');
-
-            // Get mouse and column origin measurements
             var orgX = event.clientX;
             var orgWidth = $(column).width();
 
-            // On every mouse move, calculate the new width
-            state.listener = calculateWidthEvent(state, scope, column, orgX, orgWidth, optional)
-            $(window).mousemove(state.listener)
-
-            // Stop dragging as soon as the mouse is released
-            $(window).one('mouseup', unbindEvent(state, scope, column, handle))
-        })
+            this.listener = this.calculateWidthEvent(column, orgX, orgWidth, optional)
+            $(window).mousemove(this.listener)
+            $(window).one('mouseup', this.unbindEvent(column, handle))
+        }.bind(this))
     }
 
-    function calculateWidthEvent(state, scope, column, orgX, orgWidth, optional) {
+    RzController.prototype.calculateWidthEvent = function(column, orgX, orgWidth, optional) {
         return function(event) {
-            // Get current mouse position
             var newX = event.clientX;
-
-            // Use calculator function to calculate new width
             var diffX = newX - orgX;
-            var newWidth = state.resizer.calculate(orgWidth, diffX);
+            var newWidth = this.resizer.calculate(orgWidth, diffX);
 
             if (newWidth < getMinWidth(column)) return;
-            if (state.resizer.restrict(newWidth, diffX)) return;
+            if (this.resizer.restrict(newWidth, diffX)) return;
 
-            // Extra optional column
-            if (state.resizer.intervene){
-                var optWidth = state.resizer.intervene.calculator(optional.orgWidth, diffX);
+            if (this.resizer.intervene){
+                var optWidth = this.resizer.intervene.calculator(optional.orgWidth, diffX);
                 if (optWidth < getMinWidth(optional.column)) return;
-                if (state.resizer.intervene.restrict(optWidth, diffX)) return;
+                if (this.resizer.intervene.restrict(optWidth, diffX)) return;
                 $(optional.column).width(optWidth)
             }
 
-            scope.options.onResizeInProgress && scope.options.onResizeInProgress(column, newWidth, diffX)
-
-            // Set size
+            this.scope.options.onResizeInProgress && this.scope.options.onResizeInProgress(column, newWidth, diffX)
             $(column).width(newWidth);
-        }
+        }.bind(this)
     }
 
     function getMinWidth(column) {
-        // "25px" -> 25
         return parseInt($(column).css('min-width')) || 0;
     }
 
-    function getResizer(scope, attr) {
+    RzController.prototype.getResizer = function() {
         try {
-            var mode = attr.rzMode ? scope.mode : 'BasicResizer';
+            var mode = this.attr.rzMode ? this.scope.mode : 'BasicResizer';
             var Resizer = $injector.get(mode)
             return Resizer;
         } catch (e) {
-            console.error("The resizer "+ scope.mode +" was not found");
+            console.error("The resizer "+ this.scope.mode +" was not found");
             return null;
         }
     }
 
-
-    function unbindEvent(state, scope, column, handle) {
-        // Event called at end of drag
+    RzController.prototype.unbindEvent = function(column, handle) {
         return function( /*event*/ ) {
-            $(handle).removeClass(scope.options.handleClassActive || 'rz-handle-active');
+            $(handle).removeClass(this.scope.options.handleClassActive || 'rz-handle-active');
 
-            if (state.listener) {
-                $(window).unbind('mousemove', state.listener);
-                state.listener = null;
+            if (this.listener) {
+                $(window).unbind('mousemove', this.listener);
+                this.listener = null;
             }
 
-            scope.options.onResizeEnded && scope.options.onResizeEnded(column)
-
-            state.resizer.onEndDrag();
-
-            saveColumnSizes(state);
-        }
+            this.scope.options.onResizeEnded && this.scope.options.onResizeEnded(column)
+            this.resizer.onEndDrag();
+            this.saveColumnSizes();
+        }.bind(this)
     }
 
-    function saveColumnSizes(state) {
-        if (!state.saveTableSizes) return;
+    RzController.prototype.saveColumnSizes = function() {
+        if (!this.saveTableSizes) return;
 
-        if (!state.cache) state.cache = {};
-        $(state.columns).each(function(index, column) {
+        if (!this.cache) this.cache = {};
+        $(this.columns).each(function(index, column) {
             var colScope = angular.element(column).scope()
             var id = colScope.rzCol || $(column).attr('id')
             if (!id) return;
-            state.cache[id] = state.resizer.saveAttr(column);
-        })
+            this.cache[id] = this.resizer.saveAttr(column);
+        }.bind(this))
 
-        resizeStorage.saveTableSizes(state.table, state.mode, state.profile, state.cache);
+        resizeStorage.saveTableSizes(this.table, this.mode, this.profile, this.cache);
     }
 
-    function setColumnSizes(state, cache) {
+    RzController.prototype.setColumnSizes = function(cache) {
         if (!cache) {
             return;
         }
 
-        $(state.table).width('auto');
+        $(this.table).width('auto');
 
-        state.ctrlColumns.each(function(index, column){
+        this.ctrlColumns.each(function(index, column){
             var colScope = angular.element(column).scope()
             var id = colScope.rzCol || $(column).attr('id')
             var cacheWidth = cache[id];
             $(column).css({ width: cacheWidth });
         })
 
-        state.resizer.onTableReady();
+        this.resizer.onTableReady();
     }
 
-    // Return this directive as a object literal
     return {
         restrict: 'A',
-        link: link,
         controller: RzController,
         scope: {
-            // rzMode will determine the rezising behavior
             mode: '=rzMode',
-            // rzProfile loads a profile from local storage
             profile: '=?rzProfile',
-            // rzBusy will postpone initialisation
             busy: '=?rzBusy',
-            // rzSave saves columns to local storage
             saveTableSizes: '=?rzSave',
-            // rzOptions supplies addition options
             options: '=?rzOptions',
-            // rzModel binds utility function to controller
             model: '=rzModel',
-            // rzContainer is a query selector for the container DOM
             container: '@rzContainer'
         }
     };
