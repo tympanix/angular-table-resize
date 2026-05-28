@@ -8,11 +8,18 @@ angular.module("rzTable").directive('rzCol', [function() {
     scope: true
   };
 
-  function link(scope, element, attr) {
+  function link(scope, element, attr, controller) {
+    var column = controller.registerColumn(element, scope)
+
     scope.$watch(function() {
       return scope.$eval(attr.rzCol)
     }, function(rzCol) {
       scope.rzCol = rzCol
+      controller.updateRegisteredColumn(column, rzCol)
+    })
+
+    scope.$on('$destroy', function() {
+      controller.unregisterColumn(column)
     })
   }
 }])
