@@ -4,7 +4,8 @@
   "description": "An AngularJS module for resizing table columns!",
   "main": "./dist/angular-table-resize.js",
   "scripts": {
-    "test": "karma start"
+    "test": "karma start --single-run",
+    "build": "gulp build"
   },
   "repository": {
     "type": "git",
@@ -13,21 +14,24 @@
   "author": "Mathias Mortensen",
   "license": "MIT",
   "devDependencies": {
-    "angular-mocks": "^1.5.8",
-    "browser-sync": "^2.12.10",
-    "chai": "^3.5.0",
-    "gulp": "^3.9.1",
-    "gulp-clean-css": "^2.0.11",
-    "gulp-concat": "^2.6.0",
-    "gulp-rename": "^1.2.2",
-    "gulp-uglify": "^1.5.4",
-    "karma": "^1.1.2",
+    "angular-mocks": "^1.8.3",
+    "browser-sync": "^3.0.4",
+    "chai": "^4.5.0",
+    "gulp": "^4.0.2",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-cli": "^3.0.0",
+    "gulp-concat": "^2.6.1",
+    "gulp-rename": "^2.1.0",
+    "gulp-uglify": "^3.0.2",
+    "jsdom": "^25.0.1",
+    "karma": "^6.4.4",
     "karma-chai": "^0.1.0",
-    "mocha": "^3.0.1",
-    "run-sequence": "^1.2.1"
+    "karma-jsdom-launcher": "^19.0.0",
+    "karma-mocha": "^2.0.1",
+    "mocha": "^10.8.2"
   },
   "dependencies": {
-    "angular": "^1.5.7",
-    "jquery": "^3.0.0"
+    "angular": "^1.8.3",
+    "jquery": "^3.7.1"
   }
 }

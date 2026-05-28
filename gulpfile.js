@@ -1,7 +1,6 @@
 /*jshint esversion: 6 */
-const gulp = require('gulp');
-const browsersync = require('browser-sync').create();
-const runSequence = require('run-sequence');
+const { dest, parallel, series, src, watch } = require('gulp');
+const browserSync = require('browser-sync').create();
 const uglify = require('gulp-uglify');
 const concat = require('gulp-concat');
 const rename = require('gulp-rename');
@@ -24,46 +23,50 @@ const cssFiles = [
 
 const DIST = './dist/';
 
-gulp.task('serve', function() {
-    browsersync.init({
+function serve(done) {
+    browserSync.init({
         port: 3001,
         server: {
             baseDir: "./"
         }
     });
-});
+    done();
+}
 
-gulp.task('update', function() {
-    browsersync.update();
-});
+function update(done) {
+    browserSync.reload();
+    done();
+}
 
-gulp.task('watch', function() {
-    gulp.watch(['index.html', 'css/**', 'scripts/**', 'views/**', 'demo/**'], function() {
-        runSequence('build', browsersync.reload)
-    });
-});
+function watchFiles() {
+    watch(['index.html', 'css/**', 'scripts/**', 'views/**', 'demo/**'], series(build, update));
+}
 
-gulp.task('dev', function() {
-    runSequence('serve', 'watch');
-});
-
-gulp.task('build:js', function() {
-    return gulp.src(jsFiles)
+function buildJs() {
+    return src(jsFiles)
         .pipe(concat('angular-table-resize.js'))
-        .pipe(gulp.dest(DIST))
+        .pipe(dest(DIST))
         .pipe(uglify())
         .pipe(rename({ extname: '.min.js' }))
-        .pipe(gulp.dest(DIST))
-})
+        .pipe(dest(DIST));
+}
 
-gulp.task('build:css', function() {
-    return gulp.src(cssFiles)
-        .pipe(gulp.dest(DIST))
+function buildCss() {
+    return src(cssFiles)
+        .pipe(dest(DIST))
         .pipe(cleancss({ compatibility: 'ie8' }))
         .pipe(rename({ extname: '.min.css' }))
-        .pipe(gulp.dest(DIST))
-})
+        .pipe(dest(DIST));
+}
 
-gulp.task('build', ['build:js', 'build:css'])
+const build = parallel(buildJs, buildCss);
+const dev = series(build, serve, watchFiles);
 
-gulp.task('default', ['dev']);
+exports.serve = serve;
+exports.update = update;
+exports.watch = watchFiles;
+exports.dev = dev;
+exports['build:js'] = buildJs;
+exports['build:css'] = buildCss;
+exports.build = build;
+exports.default = dev;
