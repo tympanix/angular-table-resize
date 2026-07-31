@@ -137,7 +137,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
 
         var ResizeModel = this.getResizer();
         if (!ResizeModel) return;
-        this.resizer = new ResizeModel(this.table, this.columns, this.container);
+        this.resizer = new ResizeModel(this.table, this.columns, this.container, this.scope.options);
 
         if (this.saveTableSizes) {
             this.cache = resizeStorage.loadTableSizes(this.table, this.scope.mode, this.scope.profile)
@@ -199,12 +199,12 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
             var diffX = newX - orgX;
             var newWidth = this.resizer.calculate(orgWidth, diffX);
 
-            if (newWidth < getMinWidth(column)) return;
+            if (newWidth < this.resizer.getMinWidth(column)) return;
             if (this.resizer.restrict(newWidth, diffX)) return;
 
             if (this.resizer.intervene){
                 var optWidth = this.resizer.intervene.calculator(optional.orgWidth, diffX);
-                if (optWidth < getMinWidth(optional.column)) return;
+                if (optWidth < this.resizer.getMinWidth(optional.column)) return;
                 if (this.resizer.intervene.restrict(optWidth, diffX)) return;
                 $(optional.column).width(optWidth)
             }
@@ -212,10 +212,6 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
             this.scope.options.onResizeInProgress && this.scope.options.onResizeInProgress(column, newWidth, diffX)
             $(column).width(newWidth);
         }.bind(this)
-    }
-
-    function getMinWidth(column) {
-        return parseInt($(column).css('min-width')) || 0;
     }
 
     RzController.prototype.getResizer = function() {
@@ -268,7 +264,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
         this.ctrlColumns.each(function(index, column){
             var colScope = angular.element(column).scope()
             var id = colScope.rzCol || $(column).attr('id')
-            var cacheWidth = angular.isDefined(cache[id]) ? cache[id] : this.resizer.getMinWidth(column);
+            var cacheWidth = angular.isDefined(cache[id]) ? cache[id] : this.resizer.getDefaultWidth(column);
             $(column).css({ width: cacheWidth });
         }.bind(this))
 
@@ -364,10 +360,11 @@ angular.module("rzTable").service('resizeStorage', ['$window', function($window)
 
 angular.module("rzTable").factory("ResizerModel", [function() {
 
-    function ResizerModel(table, columns, container){
+    function ResizerModel(table, columns, container, options){
         this.table = table;
         this.columns = columns;
         this.container = container;
+        this.options = options || {};
 
         this.handleColumns = this.handles();
         this.ctrlColumns = this.ctrlColumns();
@@ -386,8 +383,16 @@ angular.module("rzTable").factory("ResizerModel", [function() {
     };
 
     ResizerModel.prototype.getMinWidth = function(column) {
+        if (angular.isDefined(this.options.minWidth)) {
+            return parseInt(this.options.minWidth) || 0;
+        }
+
         // "25px" -> 25
         return parseInt($(column).css('min-width')) || 0;
+    }
+
+    ResizerModel.prototype.getDefaultWidth = function() {
+        return angular.isDefined(this.options.defaultWidth) ? this.options.defaultWidth : 100;
     }
 
     ResizerModel.prototype.handles = function () {
@@ -435,9 +440,9 @@ angular.module("rzTable").factory("ResizerModel", [function() {
 
 angular.module("rzTable").factory("BasicResizer", ["ResizerModel", function(ResizerModel) {
 
-    function BasicResizer(table, columns, container) {
+    function BasicResizer(table, columns, container, options) {
         // Call super constructor
-        ResizerModel.call(this, table, columns, container)
+        ResizerModel.call(this, table, columns, container, options)
 
         // All columns are controlled in basic mode
         this.ctrlColumns = this.columns;
@@ -461,7 +466,7 @@ angular.module("rzTable").factory("BasicResizer", ["ResizerModel", function(Resi
     }
 
     function interveneRestrict(newWidth){
-        return newWidth < 25;
+        return false;
     }
 
     BasicResizer.prototype.setup = function() {
@@ -478,6 +483,14 @@ angular.module("rzTable").factory("BasicResizer", ["ResizerModel", function(Resi
     BasicResizer.prototype.handles = function() {
         // Mode fixed does not require handler on last column
         return $(this.columns).not(':last')
+    };
+
+    BasicResizer.prototype.getDefaultWidth = function() {
+        if (angular.isDefined(this.options.defaultWidth)) {
+            return ResizerModel.prototype.getDefaultWidth.call(this);
+        }
+
+        return 100 / this.columns.length + '%';
     };
 
     BasicResizer.prototype.onFirstDrag = function() {
@@ -515,9 +528,9 @@ angular.module("rzTable").factory("BasicResizer", ["ResizerModel", function(Resi
 
 angular.module("rzTable").factory("FixedResizer", ["ResizerModel", function(ResizerModel) {
 
-    function FixedResizer(table, columns, container) {
+    function FixedResizer(table, columns, container, options) {
         // Call super constructor
-        ResizerModel.call(this, table, columns, container)
+        ResizerModel.call(this, table, columns, container, options)
 
         this.fixedColumn = $(table).find('th').first();
         this.bound = false;
@@ -572,7 +585,7 @@ angular.module("rzTable").factory("FixedResizer", ["ResizerModel", function(Resi
           return true
         } else if (this.fixedColumn.width() <= this.getMinWidth(this.fixedColumn)) {
             this.bound = diffX
-            $(this.fixedColumn).width(this.minWidth);
+            $(this.fixedColumn).width(this.getMinWidth(this.fixedColumn));
             return true;
         }
     };
@@ -593,9 +606,9 @@ angular.module("rzTable").factory("FixedResizer", ["ResizerModel", function(Resi
 
 angular.module("rzTable").factory("OverflowResizer", ["ResizerModel", function(ResizerModel) {
 
-    function OverflowResizer(table, columns, container) {
+    function OverflowResizer(table, columns, container, options) {
         // Call super constructor
-        ResizerModel.call(this, table, columns, container)
+        ResizerModel.call(this, table, columns, container, options)
     }
 
     // Inherit by prototypal inheritance

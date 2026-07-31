@@ -1,9 +1,10 @@
 angular.module("rzTable").factory("ResizerModel", [function() {
 
-    function ResizerModel(table, columns, container){
+    function ResizerModel(table, columns, container, options){
         this.table = table;
         this.columns = columns;
         this.container = container;
+        this.options = options || {};
 
         this.handleColumns = this.handles();
         this.ctrlColumns = this.ctrlColumns();
@@ -22,8 +23,16 @@ angular.module("rzTable").factory("ResizerModel", [function() {
     };
 
     ResizerModel.prototype.getMinWidth = function(column) {
+        if (angular.isDefined(this.options.minWidth)) {
+            return parseInt(this.options.minWidth) || 0;
+        }
+
         // "25px" -> 25
         return parseInt($(column).css('min-width')) || 0;
+    }
+
+    ResizerModel.prototype.getDefaultWidth = function() {
+        return angular.isDefined(this.options.defaultWidth) ? this.options.defaultWidth : 100;
     }
 
     ResizerModel.prototype.handles = function () {

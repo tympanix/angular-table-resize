@@ -1,8 +1,8 @@
 angular.module("rzTable").factory("OverflowResizer", ["ResizerModel", function(ResizerModel) {
 
-    function OverflowResizer(table, columns, container) {
+    function OverflowResizer(table, columns, container, options) {
         // Call super constructor
-        ResizerModel.call(this, table, columns, container)
+        ResizerModel.call(this, table, columns, container, options)
     }
 
     // Inherit by prototypal inheritance

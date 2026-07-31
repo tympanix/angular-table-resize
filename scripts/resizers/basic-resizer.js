@@ -1,8 +1,8 @@
 angular.module("rzTable").factory("BasicResizer", ["ResizerModel", function(ResizerModel) {
 
-    function BasicResizer(table, columns, container) {
+    function BasicResizer(table, columns, container, options) {
         // Call super constructor
-        ResizerModel.call(this, table, columns, container)
+        ResizerModel.call(this, table, columns, container, options)
 
         // All columns are controlled in basic mode
         this.ctrlColumns = this.columns;
@@ -26,7 +26,7 @@ angular.module("rzTable").factory("BasicResizer", ["ResizerModel", function(Resi
     }
 
     function interveneRestrict(newWidth){
-        return newWidth < 25;
+        return false;
     }
 
     BasicResizer.prototype.setup = function() {
@@ -43,6 +43,14 @@ angular.module("rzTable").factory("BasicResizer", ["ResizerModel", function(Resi
     BasicResizer.prototype.handles = function() {
         // Mode fixed does not require handler on last column
         return $(this.columns).not(':last')
+    };
+
+    BasicResizer.prototype.getDefaultWidth = function() {
+        if (angular.isDefined(this.options.defaultWidth)) {
+            return ResizerModel.prototype.getDefaultWidth.call(this);
+        }
+
+        return 100 / this.columns.length + '%';
     };
 
     BasicResizer.prototype.onFirstDrag = function() {

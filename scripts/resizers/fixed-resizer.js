@@ -1,8 +1,8 @@
 angular.module("rzTable").factory("FixedResizer", ["ResizerModel", function(ResizerModel) {
 
-    function FixedResizer(table, columns, container) {
+    function FixedResizer(table, columns, container, options) {
         // Call super constructor
-        ResizerModel.call(this, table, columns, container)
+        ResizerModel.call(this, table, columns, container, options)
 
         this.fixedColumn = $(table).find('th').first();
         this.bound = false;
@@ -57,7 +57,7 @@ angular.module("rzTable").factory("FixedResizer", ["ResizerModel", function(Resi
           return true
         } else if (this.fixedColumn.width() <= this.getMinWidth(this.fixedColumn)) {
             this.bound = diffX
-            $(this.fixedColumn).width(this.minWidth);
+            $(this.fixedColumn).width(this.getMinWidth(this.fixedColumn));
             return true;
         }
     };
