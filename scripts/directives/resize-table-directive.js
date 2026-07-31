@@ -266,9 +266,9 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
         this.ctrlColumns.each(function(index, column){
             var colScope = angular.element(column).scope()
             var id = colScope.rzCol || $(column).attr('id')
-            var cacheWidth = cache[id];
+            var cacheWidth = angular.isDefined(cache[id]) ? cache[id] : this.resizer.getMinWidth(column);
             $(column).css({ width: cacheWidth });
-        })
+        }.bind(this))
 
         this.resizer.onTableReady();
     }
