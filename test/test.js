@@ -70,4 +70,26 @@ describe('rzTable', function() {
             });
         });
     });
+
+    describe('OverflowResizer', function() {
+        beforeEach(function() {
+            localStorage.setItem('ngColumnResize.myTable.OverflowResizer', JSON.stringify({
+                'col-1': 100,
+                'col-3': 75
+            }));
+        });
+
+        afterEach(function() {
+            localStorage.clear();
+        });
+
+        it('uses the minimum width for columns missing from the cache', inject(function($rootScope, $compile) {
+            var element = compileTable('OverflowResizer', $rootScope, $compile);
+            var columns = element.find('th');
+
+            expect(columns.eq(0).css('width')).to.equal('100px');
+            expect(columns.eq(1).css('width')).to.equal('25px');
+            expect(columns.eq(2).css('width')).to.equal('75px');
+        }));
+    });
 });
