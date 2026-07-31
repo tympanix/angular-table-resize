@@ -135,7 +135,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
 
         var ResizeModel = this.getResizer();
         if (!ResizeModel) return;
-        this.resizer = new ResizeModel(this.table, this.columns, this.container);
+        this.resizer = new ResizeModel(this.table, this.columns, this.container, this.scope.options);
 
         if (this.saveTableSizes) {
             this.cache = resizeStorage.loadTableSizes(this.table, this.scope.mode, this.scope.profile)
@@ -197,12 +197,12 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
             var diffX = newX - orgX;
             var newWidth = this.resizer.calculate(orgWidth, diffX);
 
-            if (newWidth < getMinWidth(column)) return;
+            if (newWidth < this.resizer.getMinWidth(column)) return;
             if (this.resizer.restrict(newWidth, diffX)) return;
 
             if (this.resizer.intervene){
                 var optWidth = this.resizer.intervene.calculator(optional.orgWidth, diffX);
-                if (optWidth < getMinWidth(optional.column)) return;
+                if (optWidth < this.resizer.getMinWidth(optional.column)) return;
                 if (this.resizer.intervene.restrict(optWidth, diffX)) return;
                 $(optional.column).width(optWidth)
             }
@@ -210,10 +210,6 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
             this.scope.options.onResizeInProgress && this.scope.options.onResizeInProgress(column, newWidth, diffX)
             $(column).width(newWidth);
         }.bind(this)
-    }
-
-    function getMinWidth(column) {
-        return parseInt($(column).css('min-width')) || 0;
     }
 
     RzController.prototype.getResizer = function() {
@@ -266,7 +262,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
         this.ctrlColumns.each(function(index, column){
             var colScope = angular.element(column).scope()
             var id = colScope.rzCol || $(column).attr('id')
-            var cacheWidth = angular.isDefined(cache[id]) ? cache[id] : this.resizer.getMinWidth(column);
+            var cacheWidth = angular.isDefined(cache[id]) ? cache[id] : this.resizer.getDefaultWidth(column);
             $(column).css({ width: cacheWidth });
         }.bind(this))
 

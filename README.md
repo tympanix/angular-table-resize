@@ -133,3 +133,9 @@ You may supply optional/additional options to the module for your personalizatio
 
 * **`handleClassActive`: *`string`***
   The class appended to the handle, when a column is being resized. Default is `rz-handle-active` (from [angular-table-resize.css](dist/angular-table-resize.css)).
+
+* **`defaultWidth`: *`number|string`***
+  The width assigned to a column that is missing from a saved profile. Defaults to `100` pixels for `FixedResizer` and `OverflowResizer`, and an equal percentage of the table width for `BasicResizer`. Use a percentage value such as `'20%'` when overriding this option for `BasicResizer`.
+
+* **`minWidth`: *`number|string`***
+  The minimum width allowed while resizing. When omitted, the minimum is read from the column's CSS `min-width` property.
