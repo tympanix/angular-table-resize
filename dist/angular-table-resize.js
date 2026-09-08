@@ -85,6 +85,15 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
         }).join('|')
     }
 
+    RzController.prototype.getColumnId = function(column) {
+        var registeredColumn = this.registeredColumns.find(function(entry) {
+            return entry.element[0] === column
+        })
+        return registeredColumn && angular.isDefined(registeredColumn.id)
+            ? registeredColumn.id
+            : $(column).attr('id')
+    }
+
     RzController.prototype.bindUtilityFunctions = function() {
         var ctrl = this;
         if (!this.attr.rzModel) return;
@@ -245,8 +254,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
 
         if (!this.cache) this.cache = {};
         $(this.columns).each(function(index, column) {
-            var colScope = angular.element(column).scope()
-            var id = colScope.rzCol || $(column).attr('id')
+            var id = this.getColumnId(column)
             if (!id) return;
             this.cache[id] = this.resizer.saveAttr(column);
         }.bind(this))
@@ -262,8 +270,7 @@ angular.module("rzTable").directive('rzTable', ['resizeStorage', '$injector', '$
         $(this.table).width('auto');
 
         this.ctrlColumns.each(function(index, column){
-            var colScope = angular.element(column).scope()
-            var id = colScope.rzCol || $(column).attr('id')
+            var id = this.getColumnId(column)
             var cacheWidth = angular.isDefined(cache[id]) ? cache[id] : this.resizer.getDefaultWidth(column);
             $(column).css({ width: cacheWidth });
         }.bind(this))

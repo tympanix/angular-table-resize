@@ -136,3 +136,51 @@ describe('rzTable', function() {
         }));
     });
 });
+
+describe('rzTable without Angular debug information', function() {
+    beforeEach(module('rzTable', function($compileProvider) {
+        $compileProvider.debugInfoEnabled(false);
+    }));
+
+    afterEach(function() {
+        localStorage.clear();
+    });
+
+    it('restores rz-col widths when a table is destroyed and recreated', inject(function($rootScope, $compile) {
+        var scope = $rootScope.$new();
+        scope.open = true;
+        scope.mode = 'OverflowResizer';
+        scope.columns = [
+            { id: 'name', label: 'Name' },
+            { id: 'size', label: 'Size' }
+        ];
+
+        var host = angular.element(
+            '<div>' +
+                '<table ng-if="open" rz-table rz-mode="mode" id="detailsTable">' +
+                    '<thead><tr>' +
+                        '<th ng-repeat="column in columns track by column.id" rz-col="column.id">{{ column.label }}</th>' +
+                    '</tr></thead>' +
+                '</table>' +
+            '</div>'
+        );
+
+        $compile(host)(scope);
+        scope.$digest();
+
+        var table = host.find('table');
+        var columns = table.find('th');
+        columns.eq(0).css({ width: 180 });
+        columns.eq(1).css({ width: 120 });
+        table.controller('rzTable').saveColumnSizes();
+
+        scope.open = false;
+        scope.$digest();
+        scope.open = true;
+        scope.$digest();
+
+        columns = host.find('table').find('th');
+        expect(columns.eq(0).css('width')).to.equal('180px');
+        expect(columns.eq(1).css('width')).to.equal('120px');
+    }));
+});
